@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorotan Video | Aether Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- COSMIC COLOR PALETTE --- */
+        :root {
+            --space-dark: #000000; --space-light: #160D2B;
+            --cosmic-purple: #9D4EDD; --cosmic-pink: #C77DFF;
+            --star-gold: #F48C06; --text-main: #F8FAFC;
+            --text-muted: #94A3B8; --glass-bg: rgba(22, 13, 43, 0.6);
+            --glass-border: rgba(157, 78, 221, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --danger: #ef4444; --success: #10b981; --info: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--space-dark); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, var(--cosmic-purple), var(--star-gold)); border-radius: 10px; }
+
+        body {
+            font-family: 'Poppins', sans-serif; background-color: var(--space-dark); color: var(--text-main);
+            display: flex; min-height: 100vh; overflow-x: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(244, 140, 6, 0.05) 0%, transparent 40%);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 280px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px);
+            border-right: 1px solid var(--glass-border); padding: 30px 20px; display: flex;
+            flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: var(--transition);
+        }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .logo-text { font-family: 'Quicksand', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: 2px; }
+        .logo-text span { color: var(--star-gold); text-shadow: 0 0 10px rgba(244, 140, 6, 0.5); }
+        .badge-admin { background: rgba(157, 78, 221, 0.2); color: var(--cosmic-pink); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; border: 1px solid var(--cosmic-purple); display: inline-block; margin-top: 5px; }
+
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; }
+        .nav-item { padding: 12px 20px; border-radius: 12px; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 15px; font-weight: 500; transition: var(--transition); border: 1px solid transparent; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background: rgba(157, 78, 221, 0.1); color: var(--cosmic-pink); border-color: rgba(157, 78, 221, 0.3); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(157, 78, 221, 0.2), transparent); border-left: 3px solid var(--cosmic-pink); }
+        .nav-item i { width: 20px; text-align: center; }
+
+        .logout-btn { margin-top: 15px; border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; margin-left: 280px; padding: 40px 5%; width: calc(100% - 280px); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .page-title { font-family: 'Quicksand', sans-serif; font-size: 2rem; font-weight: 700; color: var(--text-main); }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-email { color: var(--text-muted); font-size: 0.9rem; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--space-light); border: 2px solid var(--star-gold); display: flex; align-items: center; justify-content: center; color: var(--star-gold); font-weight: bold; text-transform: uppercase; }
+
+        /* --- FORM & LIST UI --- */
+        .admin-box { background: rgba(255, 255, 255, 0.02); padding: 30px; border-radius: 20px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); margin-bottom: 40px; }
+        .admin-box h4 { margin-bottom: 5px; color: var(--star-gold); font-weight: 700; font-size: 1.3rem; font-family: 'Quicksand', sans-serif; }
+        .box-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; display: block; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 15px; }
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .form-col { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 250px; }
+        .form-col label { font-size: 0.85rem; color: var(--text-muted); }
+        
+        .form-control { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: var(--text-main); font-family: 'Poppins', sans-serif; outline: none; transition: var(--transition); }
+        .form-control:focus { border-color: var(--cosmic-purple); background: rgba(157, 78, 221, 0.05); }
+        
+        /* YouTube Preview Box */
+        .yt-preview-container { width: 100%; max-width: 500px; aspect-ratio: 16/9; border-radius: 10px; border: 1px dashed rgba(255,0,0,0.4); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 10px; position: relative;}
+        .yt-preview-container iframe { width: 100%; height: 100%; border: none; display: none; }
+        .yt-preview-container span { color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 20px; }
+
+        .btn-add { background: var(--cosmic-purple); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; justify-content: center; }
+        .btn-add:hover { background: var(--cosmic-pink); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3); }
+        .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.2); padding: 12px 25px; border-radius: 10px; cursor: pointer; transition: var(--transition); display: none; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.05); color: white; }
+
+        /* LIST VIDEOS */
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .video-card { background: var(--glass-bg); border-radius: 15px; border: 1px solid var(--glass-border); overflow: hidden; transition: var(--transition); display: flex; flex-direction: column; }
+        .video-card:hover { border-color: rgba(255, 0, 0, 0.5); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255, 0, 0, 0.15); }
+        .video-thumbnail { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; }
+        
+        /* YouTube Play Icon Overlay */
+        .play-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,0,0,0.8); font-size: 3rem; pointer-events: none; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8)); }
+        
+        .video-content { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+        .video-title { font-family: 'Quicksand', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .video-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; }
+        
+        .action-buttons { display: flex; gap: 10px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
+        .btn-action { flex: 1; display: flex; justify-content: center; align-items: center; gap: 5px; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 500; font-family: 'Poppins', sans-serif; transition: var(--transition); }
+        .btn-edit { background: rgba(157, 78, 221, 0.1); color: var(--cosmic-pink); border: 1px solid rgba(157, 78, 221, 0.2); }
+        .btn-edit:hover { background: var(--cosmic-purple); color: white; border-color: var(--cosmic-purple); }
+        .btn-remove { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn-remove:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+        /* TOAST NOTIF */
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 15px; transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000; font-weight: 500; }
+        .toast.show { transform: translateX(0); }
+
+        /* LOADER */
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loadingState { text-align: center; padding: 40px; color: var(--text-muted); display: none; }
+
+        /* SCREEN PROTECTOR */
+        #accessDenied { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--space-dark); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        #accessDenied h1 { color: var(--danger); font-family: 'Quicksand', sans-serif; font-size: 3rem; margin-bottom: 10px; }
+        #accessDenied p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
+
+        /* RESPONSIVE */
+        .mobile-toggle { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; background: none; border: none; }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            .mobile-toggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN PROTECTOR -->
+    <div id="accessDenied">
+        <h1><i class="fas fa-lock"></i></h1>
+        <h2>Akses Ditolak</h2>
+        <p>Anda tidak memiliki izin untuk mengakses modul Sorotan Video.</p>
+        <a href="index.html" class="btn-add" style="text-decoration: none;">Kembali ke Dashboard</a>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <div class="logo-text">AETHER<span>.</span></div>
+            <div class="badge-admin">Admin Portal</div>
+        </div>
+        
+        <nav class="nav-menu" id="navMenuContainer">
+            <a href="../index.html" class="nav-item">
+                <i class="fas fa-globe"></i> Lihat Website
+            </a>
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Dashboard Utama
+            </a>
+            
+            <!-- Tempat Render Menu Dinamis -->
+            <div id="dynamicNavItems"></div>
+
+            <button class="nav-item logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title">Sorotan Video <i class="fab fa-youtube" style="color: #ff0000;"></i></h1>
+            </div>
+            <div class="user-profile">
+                <div style="text-align: right;">
+                    <div class="user-email" id="userEmailDisplay">Memuat...</div>
+                    <div id="userTitleDisplay" style="font-size: 0.75rem; color: var(--star-gold); font-weight: 600;">Pengurus OSIS</div>
+                </div>
+                <div class="user-avatar" id="userAvatarDisplay"><i class="fas fa-user"></i></div>
+            </div>
+        </header>
+
+        <!-- FORM TAMBAH/EDIT VIDEO -->
+        <div class="admin-box" id="formSection">
+            <h4 id="formTitle"><i class="fas fa-plus-circle"></i> Tambah Video YouTube</h4>
+            <span class="box-desc">Tiga (3) video terbaru akan ditampilkan secara otomatis di halaman utama website. Tempel (paste) link YouTube di bawah ini.</span>
+            
+            <form id="videoForm" class="input-group">
+                <input type="hidden" id="videoId">
+                
+                <div class="form-row">
+                    <div class="form-col" style="flex: 2;">
+                        <label>Judul Video *</label>
+                        <input type="text" id="inputTitle" class="form-control" placeholder="Contoh: Aftermovie Lumina 2026" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col" style="flex: 2;">
+                        <label>Tautan (Link) YouTube *</label>
+                        <input type="url" id="inputUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=..." required>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Mendukung format youtube.com, youtu.be, atau youtube.com/shorts</span>
+                    </div>
+                </div>
+
+                <div class="form-col">
+                    <label>Preview Video</label>
+                    <div class="yt-preview-container" id="ytPreviewBox">
+                        <span id="ytPreviewPlaceholder"><i class="fab fa-youtube" style="font-size: 2rem; color: rgba(255,0,0,0.5); display:block; margin-bottom:10px;"></i>Preview Video Akan Muncul di Sini</span>
+                        <iframe id="ytPreview" src="" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-add" id="btnSave"><i class="fas fa-save"></i> <span id="btnSaveText">Simpan Video</span></button>
+                    <button type="button" class="btn-cancel" id="btnCancel">Batal Edit</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- DAFTAR VIDEO -->
+        <div class="admin-box" style="margin-top: 0;">
+            <h4><i class="fas fa-list"></i> Daftar Video di Database</h4>
+            <span class="box-desc">Berikut adalah daftar video yang tersimpan. Video paling baru akan diurutkan di urutan teratas.</span>
+            
+            <div id="loadingState"><div class="spinner"></div><br><br>Memuat data...</div>
+            <div class="data-grid" id="videosGrid">
+                <!-- Card render here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMsg">Tindakan berhasil!</span>
+    </div>
+
+    <!-- FIREBASE & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjyKJQbGcim9esLh_bAZnxpM4jtPI5sUU",
+            authDomain: "osmaaether.firebaseapp.com",
+            projectId: "osmaaether",
+            storageBucket: "osmaaether.firebasestorage.app",
+            messagingSenderId: "943721519971",
+            appId: "1:943721519971:web:5f44039952b9541d9a5156"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ID Modul ini
+        const MODUL_ID = "sorotan"; 
+        const SUPER_ADMIN_EMAIL = "devintj11@gmail.com";
+
+        // DOM ELEMENTS
+        const accessDeniedScreen = document.getElementById('accessDenied');
+        const dynamicNavItems = document.getElementById('dynamicNavItems');
+        
+        const videoForm = document.getElementById('videoForm');
+        const inputId = document.getElementById('videoId');
+        const inputTitle = document.getElementById('inputTitle');
+        const inputUrl = document.getElementById('inputUrl');
+        
+        const ytPreview = document.getElementById('ytPreview');
+        const ytPreviewPlaceholder = document.getElementById('ytPreviewPlaceholder');
+        const btnCancel = document.getElementById('btnCancel');
+        const btnSave = document.getElementById('btnSave');
+        const formTitle = document.getElementById('formTitle');
+        const videosGrid = document.getElementById('videosGrid');
+        const loadingState = document.getElementById('loadingState');
+
+        // PROTEKSI & INISIALISASI
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                try { window.location.href = "../login.html"; } catch (e) {}
+            } else {
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                document.getElementById('userAvatarDisplay').innerText = user.email.charAt(0).toUpperCase();
+                
+                await checkAccess(user.email);
+            }
+        });
+
+        // 1. CEK HAK AKSES & RENDER SIDEBAR
+        async function checkAccess(email) {
+            try {
+                const permRef = doc(db, "settings", "permissions");
+                const permSnap = await getDoc(permRef);
+                const modRef = doc(db, "settings", "modules");
+                const modSnap = await getDoc(modRef);
+
+                let hasAccess = false;
+                let isSuperAdmin = false;
+                let userTitle = "Pengurus OSIS";
+
+                if (permSnap.exists()) {
+                    const accessData = permSnap.data();
+                    isSuperAdmin = accessData.superadmins?.includes(email) || email === SUPER_ADMIN_EMAIL;
+                    hasAccess = isSuperAdmin || (accessData[MODUL_ID] && accessData[MODUL_ID].includes(email));
+                    
+                    const safeKey = email.replace(/\./g, '_');
+                    if(accessData.titles && accessData.titles[safeKey]) {
+                        userTitle = accessData.titles[safeKey];
+                    } else if (isSuperAdmin) {
+                        userTitle = "Operator Sistem";
+                    }
+                }
+
+                if (!hasAccess) {
+                    accessDeniedScreen.style.display = "flex";
+                    return; 
+                }
+
+                accessDeniedScreen.style.display = "none";
+                document.getElementById('userTitleDisplay').innerText = userTitle;
+                
+                // Render Sidebar Dinamis
+                if(modSnap.exists()) {
+                    const modulesList = modSnap.data().list || [];
+                    const accessData = permSnap.exists() ? permSnap.data() : {};
+                    
+                    modulesList.forEach(mod => {
+                        const hasModAccess = (accessData[mod.id] && accessData[mod.id].includes(email)) || isSuperAdmin;
+                        if (hasModAccess) {
+                            const isActive = mod.id === MODUL_ID ? "active" : "";
+                            dynamicNavItems.innerHTML += `<a href="${mod.link}" class="nav-item ${isActive}"><i class="fas ${mod.icon}"></i> ${mod.name}</a>`;
+                        }
+                    });
+                }
+
+                // Load Data Videos
+                loadVideos();
+
+            } catch (error) {
+                console.error("Gagal verifikasi akses:", error);
+                showToast("Terjadi kesalahan sistem.", true);
+            }
+        }
+
+        // 2. EKSTRAKSI ID YOUTUBE & LIVE PREVIEW
+        function extractYouTubeID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        inputUrl.addEventListener('input', () => {
+            const url = inputUrl.value.trim();
+            const ytId = extractYouTubeID(url);
+
+            if (ytId) {
+                ytPreview.src = `https://www.youtube.com/embed/${ytId}?rel=0`;
+                ytPreview.style.display = 'block';
+                ytPreviewPlaceholder.style.display = 'none';
+            } else {
+                ytPreview.style.display = 'none';
+                ytPreviewPlaceholder.style.display = 'block';
+                ytPreview.src = "";
+                if(url.length > 5) {
+                    ytPreviewPlaceholder.innerHTML = `<i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--star-gold); display:block; margin-bottom:10px;"></i>URL tidak valid atau ID tidak ditemukan`;
+                } else {
+                    ytPreviewPlaceholder.innerHTML = `<i class="fab fa-youtube" style="font-size: 2rem; color: rgba(255,0,0,0.5); display:block; margin-bottom:10px;"></i>Preview Video Akan Muncul di Sini`;
+                }
+            }
+        });
+
+        // 3. LOAD DATA (READ)
+        async function loadVideos() {
+            videosGrid.innerHTML = "";
+            loadingState.style.display = "block";
+            
+            try {
+                let videoData = [];
+                const querySnapshot = await getDocs(collection(db, "videos"));
+                
+                querySnapshot.forEach((docSnap) => {
+                    videoData.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Urutkan berdasarkan tanggal terbaru (Sesuai logic index.html)
+                videoData.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+                loadingState.style.display = "none";
+
+                if(videoData.length === 0) {
+                    videosGrid.innerHTML = `<p style="color:var(--text-muted); grid-column:1/-1;">Belum ada video yang ditambahkan.</p>`;
+                    return;
+                }
+
+                videoData.forEach((data, index) => {
+                    // Tampilkan label "Terbaru" untuk 3 video pertama (karena ini yang muncul di index)
+                    const isDisplayedOnHome = index < 3;
+                    const badgeHtml = isDisplayedOnHome ? 
+                        `<div style="position: absolute; top: 10px; left: 10px; background: #ef4444; color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.7rem; font-weight: bold; z-index: 2; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">Tampil di Beranda</div>` : '';
+
+                    const dateStr = data.createdAt ? new Date(data.createdAt).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '-';
+
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.innerHTML = `
+                        <div style="position: relative;">
+                            ${badgeHtml}
+                            <!-- Menggunakan thumbnail bawaan YouTube agar lebih ringan daripada load banyak iframe -->
+                            <img src="https://img.youtube.com/vi/${data.ytId}/hqdefault.jpg" class="video-thumbnail" onerror="this.src='https://via.placeholder.com/400x225?text=Thumbnail+Tidak+Ditemukan'">
+                            <i class="fab fa-youtube play-overlay"></i>
+                        </div>
+                        <div class="video-content">
+                            <h3 class="video-title" title="${data.title}">${data.title}</h3>
+                            <div class="video-date"><i class="far fa-calendar-alt"></i> Ditambahkan: ${dateStr}</div>
+                            
+                            <div class="action-buttons">
+                                <button class="btn-action btn-edit" onclick="editVideo('${data.id}')"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn-action btn-remove" onclick="deleteVideo('${data.id}', '${data.title.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i> Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                    videosGrid.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(error);
+                loadingState.style.display = "none";
+                showToast("Gagal memuat data video.", true);
+            }
+        }
+
+        // 4. TAMBAH / EDIT DATA (CREATE / UPDATE)
+        videoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = inputUrl.value.trim();
+            const ytId = extractYouTubeID(url);
+
+            if (!ytId) {
+                showToast("Tautan YouTube tidak valid!", true);
+                inputUrl.focus();
+                return;
+            }
+
+            const id = inputId.value;
+            const payload = {
+                title: inputTitle.value.trim(),
+                ytId: ytId
+                // createdAt hanya di-set saat pembuatan baru agar urutan tidak berantakan
+            };
+
+            btnSave.disabled = true;
+            btnSave.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Menyimpan...`;
+
+            try {
+                if (id) {
+                    // Update
+                    await updateDoc(doc(db, "videos", id), payload);
+                    showToast("Video berhasil diperbarui!");
+                } else {
+                    // Create
+                    payload.createdAt = new Date().toISOString(); // Waktu simpan untuk sorting
+                    await addDoc(collection(db, "videos"), payload);
+                    showToast("Video baru berhasil ditambahkan!");
+                }
+                
+                resetForm();
+                loadVideos();
+            } catch (error) {
+                console.error(error);
+                showToast("Gagal menyimpan video.", true);
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerHTML = `<i class="fas fa-save"></i> <span id="btnSaveText">Simpan Video</span>`;
+            }
+        });
+
+        // 5. EDIT STATE TRIGGER
+        window.editVideo = async (id) => {
+            try {
+                showToast("Mengambil data untuk diedit...");
+                const docSnap = await getDoc(doc(db, "videos", id));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    inputId.value = id;
+                    inputTitle.value = data.title;
+                    
+                    // Rekonstruksi URL pendek agar user friendly saat diedit
+                    inputUrl.value = `https://youtu.be/${data.ytId}`;
+
+                    // Trigger image preview
+                    inputUrl.dispatchEvent(new Event('input'));
+
+                    formTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Video`;
+                    document.getElementById('btnSaveText').innerText = "Simpan Perubahan";
+                    btnCancel.style.display = "inline-block";
+                    
+                    document.getElementById('formSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } catch (error) {
+                showToast("Gagal mengambil data.", true);
+            }
+        };
+
+        // 6. HAPUS DATA (DELETE)
+        window.deleteVideo = async (id, title) => {
+            if (confirm(`Yakin ingin menghapus video "${title}"?`)) {
+                try {
+                    await deleteDoc(doc(db, "videos", id));
+                    showToast("Video berhasil dihapus!");
+                    loadVideos();
+                } catch (error) {
+                    showToast("Gagal menghapus video.", true);
+                }
+            }
+        };
+
+        // BATAL EDIT & RESET FORM
+        function resetForm() {
+            inputId.value = "";
+            videoForm.reset();
+            inputUrl.dispatchEvent(new Event('input')); // Reset preview
+            
+            formTitle.innerHTML = `<i class="fas fa-plus-circle"></i> Tambah Video YouTube`;
+            document.getElementById('btnSaveText').innerText = "Simpan Video";
+            btnCancel.style.display = "none";
+        }
+        btnCancel.addEventListener('click', resetForm);
+
+        // --- UTILITAS UI ---
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.style.background = isError ? "var(--danger)" : "var(--success)";
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if(confirm("Yakin ingin keluar?")) { signOut(auth).then(() => { try { window.location.href = "../login.html"; } catch (e) { } }); }
+        });
+
+        document.getElementById('mobileToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Informasi | Aether Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- COSMIC COLOR PALETTE --- */
+        :root {
+            --space-dark: #000000; --space-light: #160D2B;
+            --cosmic-purple: #9D4EDD; --cosmic-pink: #C77DFF;
+            --star-gold: #F48C06; --text-main: #F8FAFC;
+            --text-muted: #94A3B8; --glass-bg: rgba(22, 13, 43, 0.6);
+            --glass-border: rgba(157, 78, 221, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --danger: #ef4444; --success: #10b981; --info: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--space-dark); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, var(--cosmic-purple), var(--star-gold)); border-radius: 10px; }
+
+        body {
+            font-family: 'Poppins', sans-serif; background-color: var(--space-dark); color: var(--text-main);
+            display: flex; min-height: 100vh; overflow-x: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(244, 140, 6, 0.05) 0%, transparent 40%);
+        }
+
+        /* --- SIDEBAR (Sama dengan db/index.html) --- */
+        .sidebar {
+            width: 280px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px);
+            border-right: 1px solid var(--glass-border); padding: 30px 20px; display: flex;
+            flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: var(--transition);
+        }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .logo-text { font-family: 'Quicksand', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: 2px; }
+        .logo-text span { color: var(--star-gold); text-shadow: 0 0 10px rgba(244, 140, 6, 0.5); }
+        .badge-admin { background: rgba(157, 78, 221, 0.2); color: var(--cosmic-pink); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; border: 1px solid var(--cosmic-purple); display: inline-block; margin-top: 5px; }
+
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; }
+        .nav-item { padding: 12px 20px; border-radius: 12px; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 15px; font-weight: 500; transition: var(--transition); border: 1px solid transparent; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background: rgba(157, 78, 221, 0.1); color: var(--cosmic-pink); border-color: rgba(157, 78, 221, 0.3); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(157, 78, 221, 0.2), transparent); border-left: 3px solid var(--cosmic-pink); }
+        .nav-item i { width: 20px; text-align: center; }
+
+        .logout-btn { margin-top: 15px; border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; margin-left: 280px; padding: 40px 5%; width: calc(100% - 280px); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .page-title { font-family: 'Quicksand', sans-serif; font-size: 2rem; font-weight: 700; color: var(--text-main); }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-email { color: var(--text-muted); font-size: 0.9rem; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--space-light); border: 2px solid var(--star-gold); display: flex; align-items: center; justify-content: center; color: var(--star-gold); font-weight: bold; text-transform: uppercase; }
+
+        /* --- FORM & LIST UI --- */
+        .admin-box { background: rgba(255, 255, 255, 0.02); padding: 30px; border-radius: 20px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); margin-bottom: 40px; }
+        .admin-box h4 { margin-bottom: 5px; color: var(--star-gold); font-weight: 700; font-size: 1.3rem; font-family: 'Quicksand', sans-serif; }
+        .box-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; display: block; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 15px; }
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .form-col { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 250px; }
+        .form-col label { font-size: 0.85rem; color: var(--text-muted); }
+        
+        .form-control { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: var(--text-main); font-family: 'Poppins', sans-serif; outline: none; transition: var(--transition); }
+        .form-control:focus { border-color: var(--cosmic-purple); background: rgba(157, 78, 221, 0.05); }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        select.form-control option { background-color: var(--space-dark); color: var(--text-main); }
+
+        .img-preview-container { width: 100%; height: 150px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 5px; }
+        .img-preview-container img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .img-preview-container span { color: var(--text-muted); font-size: 0.8rem; }
+
+        .btn-add { background: var(--cosmic-purple); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; justify-content: center; }
+        .btn-add:hover { background: var(--cosmic-pink); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3); }
+        .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.2); padding: 12px 25px; border-radius: 10px; cursor: pointer; transition: var(--transition); display: none; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.05); color: white; }
+
+        /* LIST BANNERS */
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .banner-card { background: var(--glass-bg); border-radius: 15px; border: 1px solid var(--glass-border); overflow: hidden; transition: var(--transition); display: flex; flex-direction: column; }
+        .banner-card:hover { border-color: var(--star-gold); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(244, 140, 6, 0.15); }
+        .banner-img { width: 100%; height: 160px; object-fit: cover; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .banner-content { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+        .banner-badge { background: rgba(157, 78, 221, 0.2); color: var(--cosmic-pink); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; border: 1px solid var(--cosmic-purple); display: inline-block; margin-bottom: 10px; font-weight: 600; align-self: flex-start; }
+        .banner-title { font-family: 'Quicksand', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; line-height: 1.3; }
+        .banner-desc { font-size: 0.85rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 15px; flex: 1; }
+        
+        .action-buttons { display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
+        .btn-action { flex: 1; display: flex; justify-content: center; align-items: center; gap: 5px; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 500; font-family: 'Poppins', sans-serif; transition: var(--transition); }
+        .btn-edit { background: rgba(157, 78, 221, 0.1); color: var(--cosmic-pink); border: 1px solid rgba(157, 78, 221, 0.2); }
+        .btn-edit:hover { background: var(--cosmic-purple); color: white; border-color: var(--cosmic-purple); }
+        .btn-remove { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn-remove:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+        /* TOAST NOTIF */
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 15px; transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000; font-weight: 500; }
+        .toast.show { transform: translateX(0); }
+
+        /* LOADER */
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loadingState { text-align: center; padding: 40px; color: var(--text-muted); display: none; }
+
+        /* SCREEN PROTECTOR */
+        #accessDenied { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--space-dark); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        #accessDenied h1 { color: var(--danger); font-family: 'Quicksand', sans-serif; font-size: 3rem; margin-bottom: 10px; }
+        #accessDenied p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
+
+        /* RESPONSIVE */
+        .mobile-toggle { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; background: none; border: none; }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            .mobile-toggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN PROTECTOR (Akan disembunyikan jika punya akses) -->
+    <div id="accessDenied">
+        <h1><i class="fas fa-lock"></i></h1>
+        <h2>Akses Ditolak</h2>
+        <p>Anda tidak memiliki izin untuk mengakses modul Papan Informasi.</p>
+        <a href="index.html" class="btn-add" style="text-decoration: none;">Kembali ke Dashboard</a>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <div class="logo-text">AETHER<span>.</span></div>
+            <div class="badge-admin">Admin Portal</div>
+        </div>
+        
+        <nav class="nav-menu" id="navMenuContainer">
+            <a href="../index.html" class="nav-item">
+                <i class="fas fa-globe"></i> Lihat Website
+            </a>
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Dashboard Utama
+            </a>
+            
+            <!-- Tempat Render Menu Dinamis -->
+            <div id="dynamicNavItems"></div>
+
+            <button class="nav-item logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title">Papan Informasi</h1>
+            </div>
+            <div class="user-profile">
+                <div style="text-align: right;">
+                    <div class="user-email" id="userEmailDisplay">Memuat...</div>
+                    <div id="userTitleDisplay" style="font-size: 0.75rem; color: var(--star-gold); font-weight: 600;">Pengurus OSIS</div>
+                </div>
+                <div class="user-avatar" id="userAvatarDisplay"><i class="fas fa-user"></i></div>
+            </div>
+        </header>
+
+        <!-- FORM TAMBAH/EDIT BANNER -->
+        <div class="admin-box" id="formSection">
+            <h4 id="formTitle"><i class="fas fa-plus-circle"></i> Tambah Informasi Baru</h4>
+            <span class="box-desc">Informasi yang ditambahkan di sini akan tampil di Carousel (Papan Informasi Geser) pada halaman utama website.</span>
+            
+            <form id="bannerForm" class="input-group">
+                <input type="hidden" id="bannerId">
+                
+                <div class="form-row">
+                    <div class="form-col" style="flex: 2;">
+                        <label>Judul Informasi *</label>
+                        <input type="text" id="inputTitle" class="form-control" placeholder="Contoh: Lumina 2026 Segera Hadir!" required>
+                    </div>
+                    <div class="form-col" style="flex: 1;">
+                        <label>Kategori (Badge) *</label>
+                        <select id="inputBadge" class="form-control" required>
+                            <option value="Informasi">Informasi</option>
+                            <option value="Event Mendatang">Event Mendatang</option>
+                            <option value="Pengumuman">Pengumuman</option>
+                            <option value="Berita">Berita</option>
+                            <option value="Prestasi">Prestasi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-col">
+                    <label>Deskripsi Singkat (Tampil di slide gambar) *</label>
+                    <textarea id="inputDesc" class="form-control" placeholder="Tulis deskripsi singkat maksimal 2 kalimat..." required></textarea>
+                </div>
+
+                <div class="form-col">
+                    <label>Deskripsi Lengkap (Tampil saat diklik 'Baca Selengkapnya') *</label>
+                    <textarea id="inputLongDesc" class="form-control" placeholder="Tulis rincian informasi selengkapnya di sini..." style="min-height: 120px;" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col" style="flex: 2;">
+                        <label>Link Gambar / Poster (URL) *</label>
+                        <input type="url" id="inputImg" class="form-control" placeholder="https://..." required>
+                        <div class="img-preview-container" id="imgPreviewBox">
+                            <span id="imgPreviewPlaceholder">Preview Gambar Akan Muncul di Sini</span>
+                            <img id="imgPreview" src="" alt="Preview">
+                        </div>
+                    </div>
+                    <div class="form-col" style="flex: 1;">
+                        <label>Link Eksternal (Opsional)</label>
+                        <input type="url" id="inputLink" class="form-control" placeholder="Contoh: Link pendaftaran (GForm)...">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Jika ada tautan formulir, dokumen, atau link Instagram.</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn-add" id="btnSave"><i class="fas fa-save"></i> <span id="btnSaveText">Simpan Informasi</span></button>
+                    <button type="button" class="btn-cancel" id="btnCancel">Batal Edit</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- DAFTAR INFORMASI -->
+        <div class="admin-box" style="margin-top: 0;">
+            <h4><i class="fas fa-list"></i> Daftar Informasi Aktif</h4>
+            <span class="box-desc">Berikut adalah daftar informasi yang saat ini sedang ditayangkan di halaman utama.</span>
+            
+            <div id="loadingState"><div class="spinner"></div><br><br>Memuat data...</div>
+            <div class="data-grid" id="bannersGrid">
+                <!-- Card render here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMsg">Tindakan berhasil!</span>
+    </div>
+
+    <!-- FIREBASE & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjyKJQbGcim9esLh_bAZnxpM4jtPI5sUU",
+            authDomain: "osmaaether.firebaseapp.com",
+            projectId: "osmaaether",
+            storageBucket: "osmaaether.firebasestorage.app",
+            messagingSenderId: "943721519971",
+            appId: "1:943721519971:web:5f44039952b9541d9a5156"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const MODUL_ID = "info"; 
+        const SUPER_ADMIN_EMAIL = "devintj11@gmail.com";
+
+        // DOM ELEMENTS
+        const accessDeniedScreen = document.getElementById('accessDenied');
+        const dynamicNavItems = document.getElementById('dynamicNavItems');
+        
+        const bannerForm = document.getElementById('bannerForm');
+        const inputId = document.getElementById('bannerId');
+        const inputTitle = document.getElementById('inputTitle');
+        const inputBadge = document.getElementById('inputBadge');
+        const inputDesc = document.getElementById('inputDesc');
+        const inputLongDesc = document.getElementById('inputLongDesc');
+        const inputImg = document.getElementById('inputImg');
+        const inputLink = document.getElementById('inputLink');
+        
+        const imgPreview = document.getElementById('imgPreview');
+        const imgPreviewPlaceholder = document.getElementById('imgPreviewPlaceholder');
+        const btnCancel = document.getElementById('btnCancel');
+        const btnSave = document.getElementById('btnSave');
+        const formTitle = document.getElementById('formTitle');
+        const bannersGrid = document.getElementById('bannersGrid');
+        const loadingState = document.getElementById('loadingState');
+
+        // PROTEKSI & INISIALISASI
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                try { window.location.href = "../login.html"; } catch (e) {}
+            } else {
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                document.getElementById('userAvatarDisplay').innerText = user.email.charAt(0).toUpperCase();
+                
+                await checkAccess(user.email);
+            }
+        });
+
+        // 1. CEK HAK AKSES & RENDER SIDEBAR
+        async function checkAccess(email) {
+            try {
+                const permRef = doc(db, "settings", "permissions");
+                const permSnap = await getDoc(permRef);
+                const modRef = doc(db, "settings", "modules");
+                const modSnap = await getDoc(modRef);
+
+                let hasAccess = false;
+                let isSuperAdmin = false;
+                let userTitle = "Pengurus OSIS";
+
+                if (permSnap.exists()) {
+                    const accessData = permSnap.data();
+                    isSuperAdmin = accessData.superadmins?.includes(email) || email === SUPER_ADMIN_EMAIL;
+                    hasAccess = isSuperAdmin || (accessData[MODUL_ID] && accessData[MODUL_ID].includes(email));
+                    
+                    const safeKey = email.replace(/\./g, '_');
+                    if(accessData.titles && accessData.titles[safeKey]) {
+                        userTitle = accessData.titles[safeKey];
+                    } else if (isSuperAdmin) {
+                        userTitle = "Operator Sistem";
+                    }
+                }
+
+                if (!hasAccess) {
+                    accessDeniedScreen.style.display = "flex";
+                    return; 
+                }
+
+                // Lolos pengecekan, tampilkan halaman
+                accessDeniedScreen.style.display = "none";
+                document.getElementById('userTitleDisplay').innerText = userTitle;
+                
+                // Render Sidebar Dinamis
+                if(modSnap.exists()) {
+                    const modulesList = modSnap.data().list || [];
+                    const accessData = permSnap.exists() ? permSnap.data() : {};
+                    
+                    modulesList.forEach(mod => {
+                        const hasModAccess = (accessData[mod.id] && accessData[mod.id].includes(email)) || isSuperAdmin;
+                        if (hasModAccess) {
+                            const isActive = mod.id === MODUL_ID ? "active" : "";
+                            dynamicNavItems.innerHTML += `<a href="${mod.link}" class="nav-item ${isActive}"><i class="fas ${mod.icon}"></i> ${mod.name}</a>`;
+                        }
+                    });
+                }
+
+                // Load Data Banners
+                loadBanners();
+
+            } catch (error) {
+                console.error("Gagal verifikasi akses:", error);
+                showToast("Terjadi kesalahan sistem.", true);
+            }
+        }
+
+        // 2. LIVE PREVIEW GAMBAR
+        inputImg.addEventListener('input', () => {
+            const url = inputImg.value.trim();
+            if (url) {
+                imgPreview.src = url;
+                imgPreview.style.display = 'block';
+                imgPreviewPlaceholder.style.display = 'none';
+            } else {
+                imgPreview.style.display = 'none';
+                imgPreviewPlaceholder.style.display = 'block';
+            }
+        });
+
+        imgPreview.addEventListener('error', () => {
+            imgPreview.style.display = 'none';
+            imgPreviewPlaceholder.style.display = 'block';
+            imgPreviewPlaceholder.innerText = "URL Gambar Tidak Valid / Tidak Dapat Dimuat";
+        });
+
+        // 3. LOAD DATA (READ)
+        async function loadBanners() {
+            bannersGrid.innerHTML = "";
+            loadingState.style.display = "block";
+            
+            try {
+                const querySnapshot = await getDocs(collection(db, "banners"));
+                loadingState.style.display = "none";
+
+                if(querySnapshot.empty) {
+                    bannersGrid.innerHTML = `<p style="color:var(--text-muted); grid-column:1/-1;">Belum ada informasi yang ditambahkan.</p>`;
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const id = docSnap.id;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'banner-card';
+                    card.innerHTML = `
+                        <img src="${data.img}" class="banner-img" onerror="this.src='https://via.placeholder.com/400x200?text=Gambar+Error'">
+                        <div class="banner-content">
+                            <span class="banner-badge">${data.badge || 'Informasi'}</span>
+                            <h3 class="banner-title">${data.title}</h3>
+                            <p class="banner-desc">${data.desc}</p>
+                            
+                            <div class="action-buttons" style="margin-top:auto;">
+                                <button class="btn-action btn-edit" onclick="editBanner('${id}')"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn-action btn-remove" onclick="deleteBanner('${id}', '${data.title.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i> Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                    bannersGrid.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(error);
+                loadingState.style.display = "none";
+                showToast("Gagal memuat data dari database.", true);
+            }
+        }
+
+        // 4. TAMBAH / EDIT DATA (CREATE / UPDATE)
+        bannerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = inputId.value;
+            const payload = {
+                title: inputTitle.value.trim(),
+                badge: inputBadge.value,
+                desc: inputDesc.value.trim(),
+                longDesc: inputLongDesc.value.trim(),
+                img: inputImg.value.trim(),
+                link: inputLink.value.trim() || "#"
+            };
+
+            btnSave.disabled = true;
+            btnSave.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Menyimpan...`;
+
+            try {
+                if (id) {
+                    // Update
+                    await updateDoc(doc(db, "banners", id), payload);
+                    showToast("Informasi berhasil diperbarui!");
+                } else {
+                    // Create
+                    await addDoc(collection(db, "banners"), payload);
+                    showToast("Informasi baru berhasil ditambahkan!");
+                }
+                
+                resetForm();
+                loadBanners();
+            } catch (error) {
+                console.error(error);
+                showToast("Gagal menyimpan informasi.", true);
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerHTML = `<i class="fas fa-save"></i> <span id="btnSaveText">Simpan Informasi</span>`;
+            }
+        });
+
+        // 5. EDIT STATE TRIGGER
+        window.editBanner = async (id) => {
+            try {
+                showToast("Mengambil data untuk diedit...");
+                const docSnap = await getDoc(doc(db, "banners", id));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    inputId.value = id;
+                    inputTitle.value = data.title;
+                    inputBadge.value = data.badge || 'Informasi';
+                    inputDesc.value = data.desc;
+                    inputLongDesc.value = data.longDesc || data.desc;
+                    inputImg.value = data.img;
+                    inputLink.value = data.link === "#" ? "" : data.link;
+
+                    // Trigger image preview
+                    inputImg.dispatchEvent(new Event('input'));
+
+                    formTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Informasi`;
+                    document.getElementById('btnSaveText').innerText = "Simpan Perubahan";
+                    btnCancel.style.display = "inline-block";
+                    
+                    document.getElementById('formSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } catch (error) {
+                showToast("Gagal mengambil data.", true);
+            }
+        };
+
+        // 6. HAPUS DATA (DELETE)
+        window.deleteBanner = async (id, title) => {
+            if (confirm(`Yakin ingin menghapus banner "${title}"? Tindakan ini tidak dapat dibatalkan.`)) {
+                try {
+                    await deleteDoc(doc(db, "banners", id));
+                    showToast("Informasi berhasil dihapus!");
+                    loadBanners();
+                } catch (error) {
+                    showToast("Gagal menghapus informasi.", true);
+                }
+            }
+        };
+
+        // BATAL EDIT & RESET FORM
+        function resetForm() {
+            inputId.value = "";
+            bannerForm.reset();
+            inputImg.dispatchEvent(new Event('input')); // Reset preview
+            
+            formTitle.innerHTML = `<i class="fas fa-plus-circle"></i> Tambah Informasi Baru`;
+            document.getElementById('btnSaveText').innerText = "Simpan Informasi";
+            btnCancel.style.display = "none";
+        }
+        btnCancel.addEventListener('click', resetForm);
+
+        // --- UTILITAS UI ---
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.style.background = isError ? "var(--danger)" : "var(--success)";
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if(confirm("Yakin ingin keluar?")) { signOut(auth).then(() => { try { window.location.href = "../login.html"; } catch (e) { } }); }
+        });
+
+        document.getElementById('mobileToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard Laporan Kantin | Aether</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <style>
+        /* --- COSMIC COLOR PALETTE --- */
+        :root {
+            --space-dark: #000000; --space-light: #160D2B;
+            --cosmic-purple: #9D4EDD; --cosmic-pink: #C77DFF;
+            --star-gold: #F48C06; --text-main: #F8FAFC;
+            --text-muted: #94A3B8; --glass-bg: rgba(22, 13, 43, 0.6);
+            --glass-border: rgba(157, 78, 221, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --danger: #ef4444; --success: #10b981; --info: #3b82f6; --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--space-dark); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, var(--cosmic-purple), var(--star-gold)); border-radius: 10px; }
+
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--space-dark); 
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(244, 140, 6, 0.05) 0%, transparent 40%);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 90; opacity: 0; transition: var(--transition); }
+        .sidebar {
+            width: 280px; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px);
+            border-right: 1px solid var(--glass-border); padding: 30px 20px; display: flex;
+            flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: var(--transition);
+        }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .logo-text { font-family: 'Quicksand', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: 2px; }
+        .logo-text span { color: var(--star-gold); text-shadow: 0 0 10px rgba(244, 140, 6, 0.5); }
+        .badge-admin { background: rgba(157, 78, 221, 0.2); color: var(--cosmic-pink); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; border: 1px solid var(--cosmic-purple); display: inline-block; margin-top: 5px; }
+
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; }
+        .nav-item { padding: 12px 20px; border-radius: 12px; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 15px; font-weight: 500; transition: var(--transition); border: 1px solid transparent; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background: rgba(157, 78, 221, 0.1); color: var(--cosmic-pink); border-color: rgba(157, 78, 221, 0.3); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(157, 78, 221, 0.2), transparent); border-left: 3px solid var(--cosmic-pink); }
+        .nav-item i { width: 20px; text-align: center; }
+
+        .logout-btn { margin-top: 15px; border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; background: transparent; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; margin-left: 280px; padding: 40px 5%; width: calc(100% - 280px); max-width: 100vw; transition: var(--transition); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-family: 'Quicksand', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .user-email { color: var(--text-muted); font-size: 0.85rem; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--space-light); border: 2px solid var(--star-gold); display: flex; align-items: center; justify-content: center; color: var(--star-gold); font-weight: bold; text-transform: uppercase; }
+
+        /* --- BOXES & FORMS --- */
+        .admin-box { background: rgba(255, 255, 255, 0.02); padding: 25px; border-radius: 20px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); margin-bottom: 25px; width: 100%; overflow: hidden; }
+        .admin-box h4 { margin-bottom: 15px; color: var(--star-gold); font-weight: 700; font-size: 1.2rem; font-family: 'Quicksand', sans-serif; display: flex; align-items: center; gap: 10px;}
+        
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; width: 100%; }
+        .form-col { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 150px; max-width: 100%; }
+        .form-col label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        
+        .form-control { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: var(--text-main); font-family: 'Poppins', sans-serif; outline: none; transition: var(--transition); font-size: 0.95rem; }
+        .form-control:focus { border-color: var(--cosmic-purple); background: rgba(157, 78, 221, 0.05); }
+        select.form-control option { background-color: var(--space-dark); color: var(--text-main); }
+
+        /* BUTTONS */
+        .btn-add { background: var(--cosmic-purple); color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; justify-content: center; font-size: 0.9rem; text-align: center;}
+        .btn-add:hover { background: var(--cosmic-pink); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3); }
+        .btn-danger-action { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; font-weight: 600; justify-content: center; font-size: 0.9rem;}
+        .btn-danger-action:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-success-action { background: rgba(16, 185, 129, 0.1); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; font-weight: 600; justify-content: center; font-size: 0.9rem;}
+        .btn-success-action:hover { background: var(--success); color: white; border-color: var(--success); }
+        .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; justify-content: center; font-size: 0.9rem;}
+        .btn-cancel:hover { background: rgba(255,255,255,0.05); color: white; }
+
+        /* TABS */
+        .tabs-header { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; width: 100%; overflow-x: auto; }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 12px 20px; cursor: pointer; font-size: 0.95rem; font-family: 'Poppins', sans-serif; font-weight: 600; border-bottom: 3px solid transparent; transition: var(--transition); white-space: nowrap; }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: var(--cosmic-pink); border-bottom-color: var(--cosmic-pink); }
+        .tab-content { display: none; width: 100%; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* GRIDS & CARDS */
+        .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .r-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 20px; cursor: pointer; transition: var(--transition); border-top: 4px solid var(--star-gold); display: flex; flex-direction: column; height: 100%; }
+        .r-card:hover { border-color: var(--glass-border); background: rgba(255, 255, 255, 0.06); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .r-card.danger-card { border-top-color: var(--danger); }
+        .r-card.safe-card { border-top-color: var(--success); }
+        
+        .r-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .r-id { font-size: 1rem; font-weight: 700; color: var(--text-main); word-break: break-all; margin-right: 10px; }
+        .r-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.1); color: white; white-space: nowrap; }
+        .r-badge.bg-danger { background: var(--danger); }
+        .r-badge.bg-warning { background: var(--warning); color: #000; }
+        .r-badge.bg-success { background: var(--success); }
+
+        .r-body p { margin-bottom: 5px; font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+        .r-body p i { width: 16px; text-align: center; color: var(--cosmic-pink); }
+        
+        /* TABLE */
+        .table-responsive { width: 100%; overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        th { background: rgba(255,255,255,0.03); color: var(--star-gold); font-weight: 600; white-space: nowrap; font-family: 'Quicksand', sans-serif; }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        .t-badge { background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; color: var(--text-muted); margin-right: 5px; display: inline-block; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.2); }
+        .t-badge-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: var(--transition); padding: 15px; overflow-x: hidden; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--space-light); border: 1px solid var(--glass-border); border-radius: 20px; max-width: 900px; width: 100%; position: relative; transform: translateY(30px) scale(0.95); transition: var(--transition); box-shadow: 0 15px 50px rgba(0,0,0,0.5); padding: 25px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; transition: var(--transition); background: none; border: none; padding: 5px; z-index: 10; }
+        .close-modal:hover { color: var(--cosmic-pink); transform: rotate(90deg); }
+        
+        .modal-title { font-family: 'Quicksand', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--star-gold); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; padding-right: 30px; }
+
+        .text-preview { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); white-space: pre-wrap; word-break: break-word; font-family: monospace; font-size: 0.85rem; max-height: 400px; overflow-y: auto; width: 100%; margin-top: 15px; }
+
+        /* TOAST NOTIF */
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px; transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000; font-weight: 500; font-size: 0.9rem; max-width: 90vw; }
+        .toast.show { transform: translateX(0); }
+
+        .loader { display: none; text-align: center; padding: 40px; color: var(--text-muted); font-size: 1.1rem; }
+        .loader i { font-size: 2rem; color: var(--star-gold); margin-bottom: 10px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* RESPONSIVE & MOBILE FRIENDLY */
+        .mobile-toggle { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; background: none; border: none; padding: 5px; }
+        
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; opacity: 1; }
+            .main-content { margin-left: 0; width: 100vw; padding: 20px 15px; }
+            .mobile-toggle { display: block; }
+            .form-row { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN PROTECTOR -->
+    <div id="accessDenied">
+        <div style="text-align:center; padding:40px;">
+            <h1 style="color:var(--danger); font-size:3rem; margin-bottom:15px;"><i class="fas fa-lock"></i></h1>
+            <h2>Akses Ditolak</h2>
+            <p style="color:var(--text-muted); margin-bottom:20px;">Anda tidak memiliki izin untuk mengakses modul Laporan Kantin.</p>
+            <a href="index.html" class="btn-add" style="text-decoration: none;">Kembali ke Dashboard</a>
+        </div>
+    </div>
+
+    <!-- SIDEBAR & OVERLAY -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="document.getElementById('mobileToggle').click()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <div class="logo-text">AETHER<span>.</span></div>
+            <div class="badge-admin">Admin Portal</div>
+        </div>
+        
+        <nav class="nav-menu" id="navMenuContainer">
+            <a href="../index.html" class="nav-item">
+                <i class="fas fa-globe"></i> Lihat Website
+            </a>
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Dashboard Utama
+            </a>
+            <div id="dynamicNavItems"></div>
+            <button class="nav-item logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title">Laporan Kantin</h1>
+            </div>
+            <div class="user-profile">
+                <div style="text-align: right; display: none;" id="mobileHideUser">
+                    <div class="user-email" id="userEmailDisplay">Memuat...</div>
+                    <div id="userTitleDisplay" style="font-size: 0.75rem; color: var(--star-gold); font-weight: 600;">Pengurus OSIS</div>
+                </div>
+                <div class="user-avatar" id="userAvatarDisplay"><i class="fas fa-user"></i></div>
+            </div>
+        </header>
+
+        <!-- FILTERS -->
+        <div class="admin-box">
+            <h4><i class="fas fa-filter"></i> Filter Data Laporan</h4>
+            <div class="form-row" style="align-items: flex-end;">
+                <div class="form-col" style="flex: 2;">
+                    <label>Pencarian (ID atau Pelapor)</label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Ketik kata kunci...">
+                </div>
+                <div class="form-col">
+                    <label>Tanggal</label>
+                    <input type="date" id="dateFilter" class="form-control">
+                </div>
+                <div class="form-col">
+                    <label>Urutkan (Hanya Daftar)</label>
+                    <select id="sortFilter" class="form-control">
+                        <option value="id_desc">ID / Terbaru</option>
+                        <option value="id_asc">ID / Terlama</option>
+                        <option value="total_desc">Tercatat Terbanyak</option>
+                        <option value="total_asc">Tercatat Terdikit</option>
+                    </select>
+                </div>
+                <div class="form-col" style="flex: 0.5;">
+                    <button class="btn-cancel" id="btnResetFilter" style="width: 100%;"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs-header">
+            <button class="tab-btn active" data-target="tab-daftar"><i class="fas fa-list-ul"></i> Daftar Laporan</button>
+            <button class="tab-btn" data-target="tab-harian"><i class="fas fa-calendar-day"></i> Rangkuman Harian</button>
+            <button class="tab-btn" data-target="tab-rentang"><i class="fas fa-calendar-week"></i> Rangkuman Rentang</button>
+        </div>
+
+        <!-- LOADER -->
+        <div class="loader" id="mainLoader">
+            <i class="fas fa-circle-notch"></i><br>Mengambil data dari Aether Cloud...
+        </div>
+
+        <!-- TAB CONTENT: DAFTAR LAPORAN -->
+        <div class="tab-content active" id="tab-daftar">
+            <div class="report-grid" id="gridDaftar"></div>
+            <div id="emptyDaftar" style="display:none; text-align:center; padding: 40px; color:var(--text-muted);">Tidak ada laporan yang sesuai kriteria.</div>
+        </div>
+
+        <!-- TAB CONTENT: RANGKUMAN HARIAN -->
+        <div class="tab-content" id="tab-harian">
+            <div class="report-grid" id="gridHarian"></div>
+            <div id="emptyHarian" style="display:none; text-align:center; padding: 40px; color:var(--text-muted);">Tidak ada rangkuman harian yang sesuai kriteria.</div>
+        </div>
+
+        <!-- TAB CONTENT: RANGKUMAN RENTANG -->
+        <div class="tab-content" id="tab-rentang">
+            <div class="admin-box" style="border-left: 4px solid var(--cosmic-pink);">
+                <h4 style="color: var(--cosmic-pink);"><i class="fas fa-sliders-h"></i> Tentukan Rentang Waktu</h4>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn-cancel" style="border-color: var(--info); color: var(--info);" onclick="setQuickRange('week')">1 Minggu Terakhir</button>
+                    <button class="btn-cancel" style="border-color: var(--info); color: var(--info);" onclick="setQuickRange('month')">1 Bulan Terakhir</button>
+                    <button class="btn-cancel" style="border-color: var(--info); color: var(--info);" onclick="setQuickRange('all')">Sepanjang Waktu</button>
+                </div>
+                <div class="form-row" style="align-items: flex-end;">
+                    <div class="form-col">
+                        <label>Dari Tanggal:</label>
+                        <input type="date" id="rangeStart" class="form-control">
+                    </div>
+                    <div class="form-col">
+                        <label>Sampai Tanggal:</label>
+                        <input type="date" id="rangeEnd" class="form-control">
+                    </div>
+                    <div class="form-col" style="flex: 0.5;">
+                        <button class="btn-add" id="btnGenerateRange" style="width:100%;"><i class="fas fa-bolt"></i> Buat Agregasi</button>
+                    </div>
+                </div>
+            </div>
+            <div id="rangeResultContainer"></div>
+        </div>
+    </main>
+
+    <!-- MODAL DETAIL LAPORAN / SUMMARY -->
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('detailModal')"><i class="fas fa-times"></i></button>
+            <h2 class="modal-title" id="modalTitle">Detail Data</h2>
+            
+            <div id="modalHeaderInfo" style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px;">
+                <!-- Disuntik via JS -->
+            </div>
+
+            <div class="tabs-header" style="margin-bottom: 15px;">
+                <button class="tab-btn active" data-subtarget="subtab-tabel" onclick="switchSubTab('subtab-tabel')"><i class="fas fa-table"></i> Tampilan Tabel</button>
+                <button class="tab-btn" data-subtarget="subtab-teks" onclick="switchSubTab('subtab-teks')"><i class="fas fa-file-alt"></i> Format Teks</button>
+            </div>
+
+            <!-- Subtab Tabel -->
+            <div class="tab-content active" id="subtab-tabel" style="display:block;">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                    <button class="btn-success-action" id="btnDownloadExcel"><i class="fas fa-file-excel"></i> Unduh Excel (XLSX)</button>
+                </div>
+                <div id="modalTableContainer"></div>
+            </div>
+
+            <!-- Subtab Teks -->
+            <div class="tab-content" id="subtab-teks" style="display:none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                    <label style="color: var(--text-main); font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="cbMinimalist" style="accent-color: var(--cosmic-pink); width:16px; height:16px;">
+                        Aktifkan Mode Minimalis (Hanya Nama & Kelas)
+                    </label>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-cancel" onclick="copyModalText()"><i class="fas fa-copy"></i> Salin</button>
+                        <button class="btn-add" id="btnDownloadTxt"><i class="fas fa-download"></i> Unduh TXT</button>
+                    </div>
+                </div>
+                <pre class="text-preview" id="modalTextPreview"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast">
+        <i class="fas fa-info-circle"></i>
+        <span id="toastMsg">Notifikasi</span>
+    </div>
+
+    <!-- FIREBASE & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Konfigurasi Aether
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjyKJQbGcim9esLh_bAZnxpM4jtPI5sUU",
+            authDomain: "osmaaether.firebaseapp.com",
+            projectId: "osmaaether",
+            storageBucket: "osmaaether.firebasestorage.app",
+            messagingSenderId: "943721519971",
+            appId: "1:943721519971:web:5f44039952b9541d9a5156"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const MODUL_ID = "laporan_kantin"; 
+        const SUPER_ADMIN_EMAIL = "devintj11@gmail.com";
+
+        // STATE
+        let allReports = [];
+        let allDailySummaries = {};
+        
+        let currentModalData = null; // Menyimpan data yang sedang dibuka di modal
+        let currentModalType = ''; // 'single', 'daily', 'range'
+
+        // DOM Elements
+        const accessDeniedScreen = document.getElementById('accessDenied');
+        const dynamicNavItems = document.getElementById('dynamicNavItems');
+        const mainLoader = document.getElementById('mainLoader');
+        const searchInput = document.getElementById('searchInput');
+        const dateFilter = document.getElementById('dateFilter');
+        const sortFilter = document.getElementById('sortFilter');
+
+        // ================= PROTEKSI & INISIALISASI =================
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                try { window.location.href = "../login.html"; } catch (e) {}
+            } else {
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                document.getElementById('userAvatarDisplay').innerText = user.email.charAt(0).toUpperCase();
+                await checkAccess(user.email);
+            }
+        });
+
+        async function checkAccess(email) {
+            try {
+                const permRef = doc(db, "settings", "permissions");
+                const permSnap = await getDoc(permRef);
+                const modRef = doc(db, "settings", "modules");
+                const modSnap = await getDoc(modRef);
+
+                let hasAccess = false;
+                let isSuperAdmin = false;
+                let userTitle = "Pengurus OSIS";
+
+                if (permSnap.exists()) {
+                    const accessData = permSnap.data();
+                    isSuperAdmin = accessData.superadmins?.includes(email) || email === SUPER_ADMIN_EMAIL;
+                    hasAccess = isSuperAdmin || (accessData[MODUL_ID] && accessData[MODUL_ID].includes(email));
+                    
+                    const safeKey = email.replace(/\./g, '_');
+                    if(accessData.titles && accessData.titles[safeKey]) userTitle = accessData.titles[safeKey];
+                    else if (isSuperAdmin) userTitle = "Operator Sistem";
+                }
+
+                if (!hasAccess) { accessDeniedScreen.style.display = "flex"; return; }
+                accessDeniedScreen.style.display = "none";
+                document.getElementById('userTitleDisplay').innerText = userTitle;
+                
+                if(modSnap.exists()) {
+                    const modulesList = modSnap.data().list || [];
+                    const accessData = permSnap.exists() ? permSnap.data() : {};
+                    modulesList.forEach(mod => {
+                        const hasModAccess = (accessData[mod.id] && accessData[mod.id].includes(email)) || isSuperAdmin;
+                        if (hasModAccess) {
+                            const isActive = mod.id === MODUL_ID ? "active" : "";
+                            dynamicNavItems.innerHTML += `<a href="${mod.link}" class="nav-item ${isActive}"><i class="fas ${mod.icon}"></i> ${mod.name}</a>`;
+                        }
+                    });
+                }
+                
+                fetchReportsData();
+
+            } catch (error) {
+                showToast("Gagal verifikasi akses.", true);
+            }
+        }
+
+        // ================= CORE DATA FETCHING =================
+        async function fetchReportsData() {
+            mainLoader.style.display = 'block';
+            try {
+                const querySnapshot = await getDocs(collection(db, "laporan"));
+                allReports = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const dateVal = data.metadata?.timestamp?.substring(0, 10) || "1970-01-01";
+                    allReports.push({ id: doc.id, data: data, dateFilterValue: dateVal });
+                });
+
+                processDailySummaries();
+                applyFilters();
+
+            } catch (error) {
+                showToast("Gagal mengambil data laporan dari Cloud.", true);
+            } finally {
+                mainLoader.style.display = 'none';
+            }
+        }
+
+        function processDailySummaries() {
+            allDailySummaries = {};
+            
+            allReports.forEach(report => {
+                const dateKey = report.dateFilterValue;
+                if (!allDailySummaries[dateKey]) {
+                    allDailySummaries[dateKey] = {
+                        reports: [],
+                        uniqueStudentsMap: new Map(),
+                        displayDate: report.data.metadata?.tanggalLaporan || dateKey
+                    };
+                }
+                
+                allDailySummaries[dateKey].reports.push(report);
+                
+                const rincian = report.data.rincian || [];
+                rincian.forEach(s => {
+                    const studentKey = `${s.nama}|${s.kelas}`;
+                    if (!allDailySummaries[dateKey].uniqueStudentsMap.has(studentKey)) {
+                        allDailySummaries[dateKey].uniqueStudentsMap.set(studentKey, {
+                            ...s,
+                            modes: new Set()
+                        });
+                    }
+                    allDailySummaries[dateKey].uniqueStudentsMap.get(studentKey).modes.add(report.data.metadata?.mode || 'Lainnya');
+                });
+            });
+
+            Object.keys(allDailySummaries).forEach(dateKey => {
+                const summary = allDailySummaries[dateKey];
+                summary.uniqueStudents = Array.from(summary.uniqueStudentsMap.values()).map(s => ({
+                    ...s,
+                    modes: Array.from(s.modes).sort().join(', ')
+                }));
+                summary.totalUnique = summary.uniqueStudentsMap.size;
+            });
+        }
+
+        // ================= FILTER & RENDER =================
+        function applyFilters() {
+            const searchQ = searchInput.value.toLowerCase();
+            const dateQ = dateFilter.value;
+            const sortQ = sortFilter.value;
+
+            // Filter
+            let filtered = allReports.filter(r => {
+                const matchSearch = r.id.toLowerCase().includes(searchQ) || (r.data.metadata?.pengirim?.name || '').toLowerCase().includes(searchQ);
+                const matchDate = !dateQ || r.dateFilterValue === dateQ;
+                return matchSearch && matchDate;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                const tA = a.data.metadata?.totalTercatat || a.data.rincian?.length || 0;
+                const tB = b.data.metadata?.totalTercatat || b.data.rincian?.length || 0;
+                
+                switch (sortQ) {
+                    case 'id_asc': return a.id.localeCompare(b.id);
+                    case 'total_desc': return tB - tA;
+                    case 'total_asc': return tA - tB;
+                    case 'id_desc': 
+                    default: return b.id.localeCompare(a.id);
+                }
+            });
+
+            renderDaftar(filtered);
+            renderHarian(filtered);
+        }
+
+        function renderDaftar(reports) {
+            const grid = document.getElementById('gridDaftar');
+            grid.innerHTML = '';
+            
+            if(reports.length === 0) {
+                document.getElementById('emptyDaftar').style.display = 'block';
+                return;
+            }
+            document.getElementById('emptyDaftar').style.display = 'none';
+
+            reports.forEach(r => {
+                const meta = r.data.metadata || {};
+                const total = meta.totalTercatat || r.data.rincian?.length || 0;
+                let badgeClass = total > 5 ? 'bg-danger' : (total > 0 ? 'bg-warning' : 'bg-success');
+                
+                const card = document.createElement('div');
+                card.className = `r-card ${total > 0 ? 'danger-card' : 'safe-card'}`;
+                card.onclick = () => openDetailModal('single', r);
+                
+                card.innerHTML = `
+                    <div class="r-header">
+                        <div class="r-id" title="${r.id}">${r.id.length > 25 ? r.id.substring(0,25)+'...' : r.id}</div>
+                        <div class="r-badge ${badgeClass}">${total} Siswa</div>
+                    </div>
+                    <div class="r-body">
+                        <p><i class="fas fa-user"></i> ${meta.pengirim?.name || 'Sistem'}</p>
+                        <p><i class="fas fa-calendar-alt"></i> ${meta.tanggalLaporan || r.dateFilterValue}</p>
+                        <p><i class="fas fa-stopwatch"></i> ${meta.mode || 'N/A'}</p>
+                    </div>
+                    <div style="margin-top:auto; padding-top:15px; text-align:right; font-size:0.8rem; color:var(--star-gold); font-weight:600;">Lihat Rincian <i class="fas fa-arrow-right"></i></div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderHarian(filteredReports) {
+            const grid = document.getElementById('gridHarian');
+            grid.innerHTML = '';
+
+            // Re-aggregate solely based on filteredReports for accurate display
+            const tempSummaries = {};
+            filteredReports.forEach(report => {
+                const dateKey = report.dateFilterValue;
+                if(allDailySummaries[dateKey]) {
+                     tempSummaries[dateKey] = allDailySummaries[dateKey];
+                }
+            });
+
+            const keys = Object.keys(tempSummaries).sort((a,b) => b.localeCompare(a));
+            
+            if(keys.length === 0) {
+                document.getElementById('emptyHarian').style.display = 'block';
+                return;
+            }
+            document.getElementById('emptyHarian').style.display = 'none';
+
+            keys.forEach(k => {
+                const sum = tempSummaries[k];
+                const card = document.createElement('div');
+                card.className = `r-card ${sum.totalUnique > 0 ? 'danger-card' : 'safe-card'}`;
+                card.onclick = () => openDetailModal('daily', { dateKey: k, ...sum });
+                
+                card.innerHTML = `
+                    <div class="r-header">
+                        <div class="r-id" style="font-size: 1.1rem; color: var(--star-gold);"><i class="fas fa-calendar-day"></i> ${sum.displayDate}</div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                        <div style="text-align:center;">
+                            <div style="font-size:2rem; font-weight:800; color:var(--danger); line-height:1;">${sum.totalUnique}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">Siswa Unik</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:2rem; font-weight:800; color:var(--text-main); line-height:1;">${sum.reports.length}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">Dokumen Laporan</div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ================= AGREGASI RENTANG =================
+        window.setQuickRange = function(type) {
+            const today = new Date();
+            let start, end = new Date(today);
+            
+            if(type === 'week') {
+                start = new Date(today);
+                start.setDate(today.getDate() - 7);
+            } else if (type === 'month') {
+                start = new Date(today);
+                start.setMonth(today.getMonth() - 1);
+            } else if (type === 'all') {
+                start = new Date("2020-01-01");
+            }
+
+            document.getElementById('rangeStart').value = start.toISOString().split('T')[0];
+            document.getElementById('rangeEnd').value = end.toISOString().split('T')[0];
+            document.getElementById('btnGenerateRange').click();
+        }
+
+        document.getElementById('btnGenerateRange').addEventListener('click', () => {
+            const start = document.getElementById('rangeStart').value;
+            const end = document.getElementById('rangeEnd').value;
+            const container = document.getElementById('rangeResultContainer');
+
+            if(!start || !end || start > end) { showToast("Rentang tanggal tidak valid!", true); return; }
+
+            const filteredReports = allReports.filter(r => r.dateFilterValue >= start && r.dateFilterValue <= end);
+            
+            if(filteredReports.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--danger); border: 1px dashed var(--danger); border-radius:12px;">Tidak ada laporan pada rentang tanggal ini.</div>`;
+                return;
+            }
+
+            const rangeMap = new Map();
+            filteredReports.forEach(report => {
+                (report.data.rincian || []).forEach(s => {
+                    const key = `${s.nama}|${s.kelas}`;
+                    if(!rangeMap.has(key)) {
+                        rangeMap.set(key, {
+                            ...s,
+                            modes: new Set(),
+                            datesReported: new Set(),
+                            badgesSet: new Set(s.badges || []),
+                            catatanSet: new Set([s.catatan || '-']),
+                            quickNotesAgg: { tm: 0, bm: 0, am: 0 }
+                        });
+                    }
+                    const E = rangeMap.get(key);
+                    E.datesReported.add(report.dateFilterValue);
+                    E.modes.add(report.data.metadata?.mode || 'Lainnya');
+                    (s.badges || []).forEach(b => E.badgesSet.add(b));
+                    if (s.catatan && s.catatan !== '-') E.catatanSet.add(s.catatan);
+
+                    // Agregasi Quick Notes
+                    const q = s.quickNotes || {};
+                    if(q.tm) E.quickNotesAgg.tm++;
+                    if(q.bm) E.quickNotesAgg.bm++;
+                    if(q.am) E.quickNotesAgg.am++;
+                });
+            });
+
+            const uniqueStudents = Array.from(rangeMap.values()).map(s => {
+                const qAggText = [];
+                if (s.quickNotesAgg.tm > 0) qAggText.push(`Tempat Makan (${s.quickNotesAgg.tm}x)`);
+                if (s.quickNotesAgg.bm > 0) qAggText.push(`Botol Minum (${s.quickNotesAgg.bm}x)`);
+                if (s.quickNotesAgg.am > 0) qAggText.push(`Alat Makan (${s.quickNotesAgg.am}x)`);
+
+                return {
+                    ...s,
+                    modes: Array.from(s.modes).sort().join(', '),
+                    daysCount: s.datesReported.size,
+                    datesReportedList: Array.from(s.datesReported).sort().join(', '),
+                    badges: Array.from(s.badgesSet).sort(),
+                    catatan: Array.from(s.catatanSet).filter(c => c !== '-').join('; ') || '-',
+                    quickNotesText: qAggText.join(', ')
+                };
+            }).sort((a, b) => b.daysCount - a.daysCount || a.nama.localeCompare(b.nama));
+
+            const summaryObj = {
+                type: 'range',
+                startDate: start,
+                endDate: end,
+                reportsCount: filteredReports.length,
+                totalUnique: rangeMap.size,
+                uniqueStudents: uniqueStudents
+            };
+
+            container.innerHTML = `
+                <div class="admin-box" style="margin-top:20px; border-color:var(--success);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h4 style="color:var(--success); margin-bottom:5px;"><i class="fas fa-check-circle"></i> Agregasi Berhasil</h4>
+                            <p style="color:var(--text-muted); font-size:0.9rem; margin:0;">${start} s/d ${end}</p>
+                        </div>
+                        <button class="btn-success-action" onclick='openDetailModal("range", ${JSON.stringify(summaryObj).replace(/'/g, "&#39;")})'><i class="fas fa-folder-open"></i> Buka Detail Rangkuman</button>
+                    </div>
+                    <hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
+                    <div style="display:flex; gap:30px;">
+                        <div><span style="font-size:1.5rem; font-weight:bold; color:var(--text-main);">${summaryObj.reportsCount}</span> <span style="font-size:0.8rem; color:var(--text-muted);">Laporan Terlibat</span></div>
+                        <div><span style="font-size:1.5rem; font-weight:bold; color:var(--danger);">${summaryObj.totalUnique}</span> <span style="font-size:0.8rem; color:var(--text-muted);">Siswa Melanggar Terakumulasi</span></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // ================= MODAL LOGIC & EXPORT =================
+        window.openDetailModal = function(type, dataObj) {
+            currentModalType = type;
+            currentModalData = dataObj;
+            
+            const titleEl = document.getElementById('modalTitle');
+            const headerInfo = document.getElementById('modalHeaderInfo');
+            
+            headerInfo.innerHTML = ''; // Reset
+
+            if(type === 'single') {
+                const meta = dataObj.data.metadata || {};
+                titleEl.innerHTML = `<i class="fas fa-file-invoice"></i> Dokumen Laporan`;
+                headerInfo.innerHTML = `
+                    <div style="flex:1; min-width:200px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">ID Dokumen</div>
+                        <div style="font-weight:600;">${dataObj.id}</div>
+                    </div>
+                    <div style="flex:1; min-width:150px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Tanggal & Mode</div>
+                        <div style="font-weight:600;">${meta.tanggalLaporan || 'N/A'} - ${meta.mode || 'N/A'}</div>
+                    </div>
+                    <div style="flex:1; min-width:150px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Pelapor</div>
+                        <div style="font-weight:600; color:var(--star-gold);">${meta.pengirim?.name || 'Sistem'}</div>
+                    </div>
+                    <div style="flex:1; min-width:100px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Total Siswa</div>
+                        <div style="font-weight:bold; color:var(--danger); font-size:1.2rem;">${meta.totalTercatat || dataObj.data.rincian?.length || 0}</div>
+                    </div>
+                `;
+            } else if (type === 'daily') {
+                titleEl.innerHTML = `<i class="fas fa-calendar-day"></i> Rangkuman Harian`;
+                headerInfo.innerHTML = `
+                    <div style="flex:1; min-width:200px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Tanggal Laporan</div>
+                        <div style="font-weight:600; color:var(--star-gold); font-size:1.1rem;">${dataObj.displayDate}</div>
+                    </div>
+                    <div style="flex:1; min-width:150px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Total Laporan</div>
+                        <div style="font-weight:600;">${dataObj.reports.length} Dokumen</div>
+                    </div>
+                    <div style="flex:1; min-width:100px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Total Siswa Unik</div>
+                        <div style="font-weight:bold; color:var(--danger); font-size:1.2rem;">${dataObj.totalUnique}</div>
+                    </div>
+                `;
+            } else if (type === 'range') {
+                titleEl.innerHTML = `<i class="fas fa-calendar-week"></i> Agregasi Rentang Waktu`;
+                headerInfo.innerHTML = `
+                    <div style="flex:1; min-width:200px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Rentang Diambil</div>
+                        <div style="font-weight:600; color:var(--star-gold); font-size:1.1rem;">${dataObj.startDate} s/d ${dataObj.endDate}</div>
+                    </div>
+                    <div style="flex:1; min-width:150px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Total Laporan Digabungkan</div>
+                        <div style="font-weight:600;">${dataObj.reportsCount} Dokumen</div>
+                    </div>
+                    <div style="flex:1; min-width:100px;">
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Siswa Melanggar (Unik)</div>
+                        <div style="font-weight:bold; color:var(--danger); font-size:1.2rem;">${dataObj.totalUnique}</div>
+                    </div>
+                `;
+            }
+
+            // TRIGGER RENDERING
+            document.getElementById('cbMinimalist').checked = false;
+            renderModalTable();
+            renderModalText();
+            
+            // Switch to Table tab automatically
+            switchSubTab('subtab-tabel');
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function getUnifiedStudentList() {
+            if (currentModalType === 'single') return currentModalData.data.rincian || [];
+            else return currentModalData.uniqueStudents || [];
+        }
+
+        function renderModalTable() {
+            const students = getUnifiedStudentList();
+            const container = document.getElementById('modalTableContainer');
+            
+            if (students.length === 0) {
+                container.innerHTML = `<div style="padding:30px; text-align:center; color:var(--success); border:1px solid var(--success); border-radius:12px;"><i class="fas fa-check-circle"></i> Bersih! Tidak ada siswa tercatat.</div>`;
+                return;
+            }
+
+            const isRange = currentModalType === 'range';
+            let tableHTML = `
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">No</th>
+                                <th>Nama Siswa</th>
+                                <th>Kelas</th>
+                                <th>${isRange ? 'Frekuensi (X)' : 'Info Mode'}</th>
+                                <th>Organisasi</th>
+                                <th>Keterangan Pelanggaran</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            students.forEach((s, idx) => {
+                const badgesHtml = (s.badges || []).map(b => `<span class="t-badge">${b}</span>`).join('') || '-';
+                const freqMode = isRange ? `<span style="font-weight:bold; color:var(--danger);">${s.daysCount}x Tercatat</span>` : `<span class="t-badge">${s.modes || currentModalData.data.metadata?.mode || 'N/A'}</span>`;
+                
+                // Construct Notes
+                let noteHtml = '';
+                if(isRange && s.quickNotesText) {
+                    noteHtml += `<span class="t-badge t-badge-danger">${s.quickNotesText}</span> `;
+                } else if(s.quickNotes) {
+                    const qArr = [];
+                    if(s.quickNotes.tm) qArr.push("Tempat Makan");
+                    if(s.quickNotes.bm) qArr.push("Botol Minum");
+                    if(s.quickNotes.am) qArr.push("Alat Makan");
+                    if(qArr.length > 0) noteHtml += `<span class="t-badge t-badge-danger">${qArr.join(', ')}</span> `;
+                }
+                
+                if(s.catatan && s.catatan !== '-') noteHtml += `<div><span style="font-size:0.8rem; color:var(--text-muted);"><i class="fas fa-quote-left"></i> ${s.catatan}</span></div>`;
+                
+                if(!noteHtml) noteHtml = '-';
+
+                tableHTML += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td style="font-weight:600;">${s.nama || 'N/A'}</td>
+                        <td>${s.kelas || 'N/A'}</td>
+                        <td>${freqMode}</td>
+                        <td>${badgesHtml}</td>
+                        <td>${noteHtml}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `</tbody></table></div>`;
+            container.innerHTML = tableHTML;
+        }
+
+        function renderModalText() {
+            const isMinimalist = document.getElementById('cbMinimalist').checked;
+            const students = getUnifiedStudentList();
+            let text = "";
+
+            if (isMinimalist) {
+                text = students.map(s => `${s.nama} - ${s.kelas}`).join('\n');
+            } else {
+                if (currentModalType === 'single') {
+                    const meta = currentModalData.data.metadata || {};
+                    text = `========================================\nLAPORAN KANTIN AETHER\nID: ${currentModalData.id}\nTanggal: ${meta.tanggalLaporan || 'N/A'}\nPelapor: ${meta.pengirim?.name || 'Anonim'}\nMode: ${meta.mode || 'N/A'} | Total Tercatat: ${students.length} ORANG\n========================================\n`;
+                } else if (currentModalType === 'daily') {
+                    text = `========================================\nRANGKUMAN HARIAN KANTIN AETHER\nTanggal: ${currentModalData.displayDate}\nTotal Dokumen: ${currentModalData.reports.length}\nTotal Siswa Unik: ${students.length} ORANG\n========================================\n`;
+                } else {
+                    text = `========================================\nAGREGASI RENTANG WAKTU KANTIN AETHER\nRentang: ${currentModalData.startDate} s/d ${currentModalData.endDate}\nTotal Dokumen: ${currentModalData.reportsCount}\nTotal Siswa Melanggar: ${students.length} ORANG\n========================================\n`;
+                }
+
+                // Group by Class
+                const grouped = students.reduce((acc, s) => { (acc[s.kelas] = acc[s.kelas] || []).push(s); return acc; }, {});
+                Object.keys(grouped).sort().forEach(k => {
+                    text += `\n[ KELAS: ${k} (${grouped[k].length} Siswa) ]\n`;
+                    grouped[k].forEach((s, i) => {
+                        let line = `${String(i + 1).padStart(2, ' ')}. ${s.nama.padEnd(30, ' ')}`;
+                        
+                        if (currentModalType === 'range') line += ` | ${s.daysCount}x Melanggar`;
+                        
+                        // Construct Notes Text
+                        let noteStr = '';
+                        if(currentModalType === 'range' && s.quickNotesText) {
+                            noteStr += `[Keterangan: ${s.quickNotesText}] `;
+                        } else if(s.quickNotes) {
+                            const qArr = [];
+                            if(s.quickNotes.tm) qArr.push("Tempat Makan");
+                            if(s.quickNotes.bm) qArr.push("Botol Minum");
+                            if(s.quickNotes.am) qArr.push("Alat Makan");
+                            if(qArr.length > 0) noteStr += `[Keterangan: ${qArr.join(', ')}] `;
+                        }
+                        if(s.catatan && s.catatan !== '-') noteStr += `(Catatan: ${s.catatan})`;
+
+                        if(noteStr) line += ` | ${noteStr}`;
+
+                        text += line + '\n';
+                    });
+                });
+            }
+
+            document.getElementById('modalTextPreview').textContent = text;
+        }
+
+        document.getElementById('cbMinimalist').addEventListener('change', renderModalText);
+
+        window.copyModalText = function() {
+            navigator.clipboard.writeText(document.getElementById('modalTextPreview').textContent);
+            showToast("Teks berhasil disalin ke clipboard!");
+        }
+
+        document.getElementById('btnDownloadTxt').addEventListener('click', () => {
+            const text = document.getElementById('modalTextPreview').textContent;
+            let filename = 'Laporan_Aether.txt';
+            if(currentModalType === 'single') filename = `Lap_${currentModalData.id}.txt`;
+            else if (currentModalType === 'daily') filename = `Harian_${currentModalData.displayDate}.txt`;
+            else filename = `Rentang_${currentModalData.startDate}_${currentModalData.endDate}.txt`;
+            
+            const a = document.createElement('a'); 
+            a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); 
+            a.download = filename; 
+            a.click(); 
+        });
+
+        document.getElementById('btnDownloadExcel').addEventListener('click', () => {
+            const students = getUnifiedStudentList();
+            if (students.length === 0) { showToast("Tidak ada data untuk diunduh.", true); return; }
+
+            const isRange = currentModalType === 'range';
+            const headers = ['No', 'Nama Siswa', 'Kelas', isRange ? 'Total Hari (X)' : 'Waktu Mode', 'Organisasi', 'Keterangan Pelanggaran']; 
+            
+            const dataMatrix = students.map((s, i) => {
+                let noteStr = '';
+                if(isRange && s.quickNotesText) {
+                    noteStr += `[Keterangan: ${s.quickNotesText}] `;
+                } else if(s.quickNotes) {
+                    const qArr = [];
+                    if(s.quickNotes.tm) qArr.push("Tempat Makan");
+                    if(s.quickNotes.bm) qArr.push("Botol Minum");
+                    if(s.quickNotes.am) qArr.push("Alat Makan");
+                    if(qArr.length > 0) noteStr += `[Keterangan: ${qArr.join(', ')}] `;
+                }
+                if(s.catatan && s.catatan !== '-') noteStr += `[Catatan: ${s.catatan}]`;
+
+                return [
+                    i + 1, 
+                    s.nama, 
+                    s.kelas, 
+                    isRange ? s.daysCount : (s.modes || currentModalData.data?.metadata?.mode || 'N/A'), 
+                    (s.badges || []).join(', ') || '-', 
+                    noteStr.trim() || '-'
+                ];
+            });
+
+            dataMatrix.unshift(headers);
+            const ws = XLSX.utils.aoa_to_sheet(dataMatrix);
+            ws['!cols'] = [{wch: 5}, {wch: 35}, {wch: 10}, {wch: 15}, {wch: 20}, {wch: 50}];
+            
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Rincian Pelanggaran");
+            
+            let filename = 'Data_Excel_Aether.xlsx';
+            if(currentModalType === 'single') filename = `Detail_${currentModalData.id}.xlsx`;
+            else if (currentModalType === 'daily') filename = `Rekap_${currentModalData.displayDate}.xlsx`;
+            else filename = `Agregasi_${currentModalData.startDate}_${currentModalData.endDate}.xlsx`;
+
+            XLSX.writeFile(wb, filename);
+        });
+
+        // ================= UTILITIES =================
+        window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); }
+        
+        // Input Triggers
+        searchInput.addEventListener('input', applyFilters);
+        dateFilter.addEventListener('input', applyFilters);
+        sortFilter.addEventListener('change', applyFilters);
+        
+        document.getElementById('btnResetFilter').addEventListener('click', () => {
+            searchInput.value = ''; dateFilter.value = ''; sortFilter.value = 'id_desc';
+            applyFilters();
+        });
+
+        // Tab System
+        const tabBtns = document.querySelectorAll('.tab-btn[data-target]');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.main-content > .tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.target).classList.add('active');
+            });
+        });
+
+        window.switchSubTab = function(tabId) {
+            document.querySelectorAll('#detailModal .tab-content').forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('#detailModal .tab-btn').forEach(el => el.classList.remove('active'));
+            
+            const targetEl = document.getElementById(tabId);
+            targetEl.style.display = 'block';
+            targetEl.classList.add('active');
+            document.querySelector(`#detailModal [data-subtarget="${tabId}"]`).classList.add('active');
+        }
+
+        function showToast(msg, isErr=false) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.style.background = isErr ? 'var(--danger)' : 'var(--success)';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // Mobile Nav
+        document.getElementById('mobileToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => { 
+            if(confirm("Keluar dari sistem?")) signOut(auth).then(()=>window.location.href="../login.html"); 
+        });
+
+    </script>
+</body>
+</html>

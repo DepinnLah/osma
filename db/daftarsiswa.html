@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Manajemen Data Siswa | Aether</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- COSMIC COLOR PALETTE --- */
+        :root {
+            --space-dark: #000000; --space-light: #160D2B;
+            --cosmic-purple: #9D4EDD; --cosmic-pink: #C77DFF;
+            --star-gold: #F48C06; --text-main: #F8FAFC;
+            --text-muted: #94A3B8; --glass-bg: rgba(22, 13, 43, 0.6);
+            --glass-border: rgba(157, 78, 221, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --danger: #ef4444; --success: #10b981; --info: #3b82f6; --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--space-dark); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, var(--cosmic-purple), var(--star-gold)); border-radius: 10px; }
+
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--space-dark); 
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(244, 140, 6, 0.05) 0%, transparent 40%);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 90; opacity: 0; transition: var(--transition); }
+        .sidebar {
+            width: 280px; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px);
+            border-right: 1px solid var(--glass-border); padding: 30px 20px; display: flex;
+            flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: var(--transition);
+        }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .logo-text { font-family: 'Quicksand', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: 2px; }
+        .logo-text span { color: var(--star-gold); text-shadow: 0 0 10px rgba(244, 140, 6, 0.5); }
+        .badge-admin { background: rgba(157, 78, 221, 0.2); color: var(--cosmic-pink); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; border: 1px solid var(--cosmic-purple); display: inline-block; margin-top: 5px; }
+
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overflow-x: hidden; }
+        .nav-item { padding: 12px 20px; border-radius: 12px; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 15px; font-weight: 500; transition: var(--transition); border: 1px solid transparent; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background: rgba(157, 78, 221, 0.1); color: var(--cosmic-pink); border-color: rgba(157, 78, 221, 0.3); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(157, 78, 221, 0.2), transparent); border-left: 3px solid var(--cosmic-pink); }
+        .nav-item i { width: 20px; text-align: center; }
+
+        .logout-btn { margin-top: 15px; border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; background: transparent; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; margin-left: 280px; padding: 40px 5%; width: calc(100% - 280px); max-width: 100vw; transition: var(--transition); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-family: 'Quicksand', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .user-email { color: var(--text-muted); font-size: 0.85rem; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--space-light); border: 2px solid var(--star-gold); display: flex; align-items: center; justify-content: center; color: var(--star-gold); font-weight: bold; text-transform: uppercase; }
+
+        /* --- BOXES & FORMS --- */
+        .admin-box { background: rgba(255, 255, 255, 0.02); padding: 25px; border-radius: 20px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); margin-bottom: 25px; width: 100%; overflow: hidden; }
+        .admin-box h4 { margin-bottom: 15px; color: var(--star-gold); font-weight: 700; font-size: 1.2rem; font-family: 'Quicksand', sans-serif; display: flex; align-items: center; gap: 10px;}
+        
+        /* BANNER TAHUN AJARAN */
+        .banner-tahun-ajaran { background: linear-gradient(135deg, rgba(157, 78, 221, 0.2), rgba(244, 140, 6, 0.1)); border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 20px 30px; border-radius: 20px; margin-bottom: 30px; position: relative;}
+        .banner-tahun-ajaran h4 { color: var(--text-main); font-size: 1.2rem; margin: 0 0 5px 0; display: flex; align-items: center; gap: 10px; }
+        .banner-tahun-ajaran p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+        .year-selector { font-size: 1.4rem; font-family: 'Quicksand', sans-serif; font-weight: 800; color: var(--star-gold); background: rgba(0,0,0,0.5); border: 1px solid var(--cosmic-purple); padding: 8px 15px; border-radius: 12px; outline: none; cursor: pointer; transition: var(--transition); }
+        .year-selector:hover { border-color: var(--cosmic-pink); }
+        
+        .badge-archive { position: absolute; top: -12px; right: 30px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 10px; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); display: none;}
+        .badge-archive.active { display: block; }
+
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; width: 100%; }
+        .form-col { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 150px; max-width: 100%; }
+        .form-col label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        
+        .form-control { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: var(--text-main); font-family: 'Poppins', sans-serif; outline: none; transition: var(--transition); font-size: 0.95rem; }
+        .form-control:focus { border-color: var(--cosmic-purple); background: rgba(157, 78, 221, 0.05); box-shadow: 0 0 10px rgba(157, 78, 221, 0.2); }
+        select.form-control option { background-color: var(--space-dark); color: var(--text-main); }
+        textarea.form-control { min-height: 120px; resize: vertical; font-family: monospace; }
+
+        /* BUTTONS */
+        .btn-add { background: var(--cosmic-purple); color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; justify-content: center; font-size: 0.9rem; text-align: center;}
+        .btn-add:hover { background: var(--cosmic-pink); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3); }
+        .btn-add:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .btn-danger-action { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; font-weight: 600; justify-content: center; font-size: 0.9rem;}
+        .btn-danger-action:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-danger-action:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-success-action { background: rgba(16, 185, 129, 0.1); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; font-weight: 600; justify-content: center; font-size: 0.9rem;}
+        .btn-success-action:hover { background: var(--success); color: white; border-color: var(--success); }
+        .btn-success-action:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: var(--transition); display: inline-flex; gap: 8px; align-items: center; justify-content: center; font-size: 0.9rem;}
+        .btn-cancel:hover { background: rgba(255,255,255,0.05); color: white; }
+        .btn-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* GRID LAYOUT SISWA */
+        .layout-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+        
+        .class-list { display: flex; flex-direction: column; gap: 10px; max-height: 550px; overflow-y: auto; padding-right: 5px; }
+        .class-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 14px 18px; border-radius: 12px; cursor: pointer; transition: var(--transition); display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.95rem; }
+        .class-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(157, 78, 221, 0.4); transform: translateX(5px); }
+        .class-item.active { background: linear-gradient(90deg, rgba(157, 78, 221, 0.2), rgba(157, 78, 221, 0.05)); border-color: var(--cosmic-pink); color: var(--cosmic-pink); box-shadow: 0 5px 15px rgba(157, 78, 221, 0.1); }
+        .class-count { background: rgba(0,0,0,0.4); padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--text-muted); }
+        .class-item.active .class-count { color: white; background: var(--cosmic-purple); }
+
+        .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; max-height: 550px; overflow-y: auto; padding-right: 5px; margin-top: 15px; }
+        
+        /* CARD SISWA */
+        .student-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 16px; transition: var(--transition); cursor: pointer; display: flex; align-items: center; gap: 12px; position: relative; overflow: hidden; }
+        .student-card:hover { transform: translateY(-3px); border-color: var(--star-gold); background: rgba(255,255,255,0.06); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .student-card.selected { border-color: var(--cosmic-pink); background: rgba(157, 78, 221, 0.1); }
+        
+        .student-select-cb { margin-right: 5px; width: 18px; height: 18px; accent-color: var(--cosmic-pink); cursor: pointer; flex-shrink: 0; }
+        .student-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, var(--cosmic-purple), var(--cosmic-pink)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(157, 78, 221, 0.3); }
+        .student-info { flex: 1; min-width: 0; }
+        .student-name { font-weight: 600; color: var(--text-main); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 15px; }
+        
+        .org-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+        .org-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; }
+        .org-badge.osis { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+        .org-badge.mpk { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+        .org-badge.duta { background: rgba(244, 140, 6, 0.2); color: var(--star-gold); }
+        
+        .status-indicator { position: absolute; top: 12px; right: 12px; font-size: 0.8rem; }
+        .status-indicator.lengkap { color: var(--success); filter: drop-shadow(0 0 5px var(--success)); }
+        .status-indicator.belum { color: var(--danger); opacity: 0.6; }
+
+        /* BULK ACTION BAR */
+        .bulk-action-bar { background: rgba(157, 78, 221, 0.15); border: 1px solid var(--cosmic-purple); border-radius: 12px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: var(--transition); padding: 15px; overflow-x: hidden; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--space-light); border: 1px solid var(--glass-border); border-radius: 24px; max-width: 500px; width: 100%; position: relative; transform: translateY(30px) scale(0.95); transition: var(--transition); box-shadow: 0 20px 60px rgba(0,0,0,0.6); padding: 30px; max-height: 90vh; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; transition: var(--transition); background: none; border: none; padding: 5px; z-index: 10; }
+        .close-modal:hover { color: var(--cosmic-pink); transform: rotate(90deg); }
+        .modal-title { font-family: 'Quicksand', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--star-gold); margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; padding-right: 30px; }
+
+        .checkbox-group { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; cursor: pointer; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); transition: var(--transition); }
+        .checkbox-group:hover { background: rgba(255,255,255,0.05); }
+        .checkbox-group input { accent-color: var(--cosmic-pink); width: 20px; height: 20px; cursor: pointer; margin-top: 2px; }
+
+        /* TOAST NOTIF */
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 15px; transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000; font-weight: 600; font-size: 0.95rem; max-width: 90vw; }
+        .toast.show { transform: translateX(0); }
+
+        .loader { display: none; text-align: center; padding: 50px; color: var(--text-muted); font-size: 1.1rem; }
+        .loader i { font-size: 2.5rem; color: var(--star-gold); margin-bottom: 15px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* RESPONSIVE & MOBILE FRIENDLY */
+        .mobile-toggle { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; background: none; border: none; padding: 5px; }
+        
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; opacity: 1; }
+            .main-content { margin-left: 0; width: 100vw; padding: 20px 15px; }
+            .mobile-toggle { display: block; }
+            .form-row { flex-direction: column; gap: 15px; }
+            .layout-grid { grid-template-columns: 1fr; }
+            .banner-tahun-ajaran { flex-direction: column; align-items: flex-start; }
+            .badge-archive { position: relative; top: 0; right: 0; display: inline-block; margin-top: 10px; }
+            .bulk-action-bar { flex-direction: column; gap: 10px; align-items: stretch; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN PROTECTOR -->
+    <div id="accessDenied">
+        <div style="text-align:center; padding:40px;">
+            <h1 style="color:var(--danger); font-size:3rem; margin-bottom:15px;"><i class="fas fa-lock"></i></h1>
+            <h2>Akses Ditolak</h2>
+            <p style="color:var(--text-muted); margin-bottom:20px;">Anda tidak memiliki izin untuk mengakses modul Manajemen Data Siswa.</p>
+            <a href="index.html" class="btn-add" style="text-decoration: none;">Kembali ke Dashboard</a>
+        </div>
+    </div>
+
+    <!-- SIDEBAR & OVERLAY -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="document.getElementById('mobileToggle').click()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <div class="logo-text">AETHER<span>.</span></div>
+            <div class="badge-admin">Admin Portal</div>
+        </div>
+        
+        <nav class="nav-menu" id="navMenuContainer">
+            <a href="../index.html" class="nav-item">
+                <i class="fas fa-globe"></i> Lihat Website
+            </a>
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Dashboard Utama
+            </a>
+            <div id="dynamicNavItems"></div>
+            <button class="nav-item logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title">Manajemen Data Siswa</h1>
+            </div>
+            <div class="user-profile">
+                <div style="text-align: right; display: none;" id="mobileHideUser">
+                    <div class="user-email" id="userEmailDisplay">Memuat...</div>
+                    <div id="userTitleDisplay" style="font-size: 0.75rem; color: var(--star-gold); font-weight: 600;">Pengurus OSIS</div>
+                </div>
+                <div class="user-avatar" id="userAvatarDisplay"><i class="fas fa-user"></i></div>
+            </div>
+        </header>
+
+        <!-- LOADER -->
+        <div class="loader" id="mainLoader" style="display: block;">
+            <i class="fas fa-circle-notch"></i><br>Menghubungkan dengan Aether Cloud...
+        </div>
+
+        <div id="appContainer" style="display: none;">
+            
+            <!-- BANNER TAHUN AJARAN (ARCHIVE UI) -->
+            <div class="banner-tahun-ajaran">
+                <div class="badge-archive" id="badgeArchive"><i class="fas fa-history"></i> Meliat Arsip Lama</div>
+                <div>
+                    <h4><i class="fas fa-calendar-alt" style="color: var(--star-gold);"></i> Tahun Ajaran Aktif</h4>
+                    <p>Gunakan dropdown untuk melihat histori arsip data siswa.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <select id="selectViewYear" class="year-selector" onchange="changeViewYear()">
+                        <!-- Opsi Tahun Ajaran dimuat disini -->
+                    </select>
+                    <button class="btn-cancel" onclick="openModal('tahunAjaranModal')" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: white;"><i class="fas fa-cog"></i> Kelola</button>
+                </div>
+            </div>
+
+            <!-- MANAJEMEN KELAS & SISWA -->
+            <div class="layout-grid">
+                <!-- PANEL KIRI: DAFTAR KELAS -->
+                <div class="admin-box" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="margin: 0;"><i class="fas fa-chalkboard-teacher"></i> Daftar Kelas</h4>
+                        <button class="btn-add" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openModal('addKelasModal')"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="class-list" id="classListContainer">
+                        <!-- Render Kelas Disini -->
+                    </div>
+                </div>
+
+                <!-- PANEL KANAN: DAFTAR SISWA -->
+                <div class="admin-box" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+                        <div>
+                            <h4 style="margin: 0;"><i class="fas fa-users"></i> Anggota Kelas: <span id="activeClassTitle" style="color: var(--cosmic-pink);">Pilih Kelas</span></h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 5px 0 0 0;" id="activeClassCount">Total: 0 Siswa</p>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn-cancel" id="btnEditKelas" style="color: var(--star-gold); border-color: rgba(244, 140, 6, 0.3);" onclick="bukaModalEditKelas()" disabled><i class="fas fa-edit"></i> Edit Kelas</button>
+                            <button class="btn-cancel" id="btnHapusKelas" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);" onclick="hapusKelasAktif()" disabled><i class="fas fa-trash"></i> Hapus Kelas</button>
+                            <button class="btn-success-action" id="btnBulkAdd" onclick="openModal('bulkAddModal')" disabled><i class="fas fa-layer-group"></i> Bulk Add (Array)</button>
+                            <button class="btn-add" id="btnAddSiswa" onclick="openModal('addSiswaModal')" disabled><i class="fas fa-user-plus"></i> Tambah Siswa</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" style="margin-bottom: 5px; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 250px;">
+                            <input type="text" id="searchSiswaInput" class="form-control" placeholder="Cari nama siswa di kelas ini..." oninput="renderStudentList()" style="flex: 1;">
+                            <button class="btn-cancel" id="btnSelectAll" onclick="selectAllStudents()" style="padding: 10px 15px;" title="Pilih Semua Siswa yang Tampil" disabled><i class="fas fa-check-double"></i></button>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 15px;">
+                            <span><i class="fas fa-check-circle" style="color:var(--success);"></i> Lengkap</span>
+                            <span><i class="fas fa-times-circle" style="color:var(--danger); opacity:0.6;"></i> Belum</span>
+                        </div>
+                    </div>
+
+                    <!-- BULK ACTION BAR (Muncul Jika Ada yang Dicentang) -->
+                    <div id="bulkActionBar" class="bulk-action-bar" style="display: none;">
+                        <span style="font-weight: 600; color: var(--cosmic-pink);"><i class="fas fa-check-square"></i> <span id="lblSelectedCount">0</span> Siswa Dipilih</span>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-cancel" style="padding: 8px 15px; font-size: 0.8rem;" onclick="clearSelection()">Batal</button>
+                            <button class="btn-add" style="padding: 8px 15px; font-size: 0.8rem;" onclick="openBulkMoveModal()"><i class="fas fa-exchange-alt"></i> Pindah Kelas</button>
+                        </div>
+                    </div>
+
+                    <div class="student-grid" id="studentListContainer">
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3068/3068327.png" alt="Empty" style="width: 80px; opacity: 0.2; filter: grayscale(100%) invert(1); margin-bottom: 15px;">
+                            <br>Silakan pilih kelas di panel sebelah kiri untuk melihat daftar siswa.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Modal Kelola Tahun Ajaran -->
+    <div id="tahunAjaranModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="close-modal" onclick="closeModal('tahunAjaranModal')"><i class="fas fa-times"></i></button>
+            <h2 class="modal-title"><i class="fas fa-cog"></i> Kelola Tahun Ajaran</h2>
+            
+            <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Tambah Tahun Ajaran Baru dan biarkan sistem mempromosikan siswa secara otomatis tanpa merusak data tahun lalu.</p>
+                
+                <div class="form-col" style="margin-bottom: 15px;">
+                    <label>Buat Tahun Ajaran Baru</label>
+                    <input type="text" id="inputNewYear" class="form-control" placeholder="Contoh: 2025/2026">
+                </div>
+
+                <div class="checkbox-group" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                    <input type="checkbox" id="cbAutoPromote" checked>
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <span style="font-weight: 700; color: #6ee7b7; font-size: 0.95rem;">Naikkan Kelas Otomatis (Auto-Promote)</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Siswa dari Kelas 10 👉 11 👉 12. Kelas 10 baru akan dibuatkan slot kosong. Kelas 12 tahun lalu akan dihapus dari daftar baru.</span>
+                    </div>
+                </div>
+
+                <div class="form-col" style="margin-bottom: 20px; margin-top: 10px;">
+                    <label>Impor Data Murid Dari Tahun:</label>
+                    <select id="selectSourceYear" class="form-control">
+                        <!-- Opsi sumber impor dimuat disini -->
+                    </select>
+                </div>
+
+                <button class="btn-add" id="btnBuatTahunBaru" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="buatTahunAjaranBaru()">Buat & Simpan Sebagai Default</button>
+            </div>
+            
+            <div id="setDefaultSection" style="display: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <button class="btn-success-action" style="width: 100%;" onclick="setAsDefaultYear()"><i class="fas fa-check-double"></i> Jadikan Tahun Ini Default Untuk Website</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Kelas -->
+    <div id="addKelasModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('addKelasModal')"><i class="fas fa-times"></i></button>
+            <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Tambah Kelas Baru</h2>
+            <div class="form-col" style="margin-bottom: 25px;">
+                <label>Nama Kelas</label>
+                <input type="text" id="inputNamaKelas" class="form-control" placeholder="Contoh: X-1 atau XI MIPA 2">
+            </div>
+            <button class="btn-add" style="width: 100%; padding: 12px;" onclick="tambahKelas()">Buat Kelas</button>
+        </div>
+    </div>
+
+    <!-- Modal Edit Nama Kelas -->
+    <div id="editKelasModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('editKelasModal')"><i class="fas fa-times"></i></button>
+            <h2 class="modal-title"><i class="fas fa-edit"></i> Edit Nama Kelas</h2>
+            <div class="form-col" style="margin-bottom: 25px;">
+                <label>Nama Kelas Baru</label>
+                <input type="text" id="inputEditNamaKelas" class="form-control">
+            </div>
+            <button class="btn-add" id="btnSimpanEditKelas" style="width: 100%; padding: 12px;" onclick="simpanEditKelas()">Simpan Perubahan</button>
+        </div>
+    </div>
+
+    <!-- Modal Pindah Kelas Masal (BULK MOVE) -->
+    <div id="bulkMoveModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('bulkMoveModal')"><i class="fas fa-times"></i></button>
+            <h2 class="modal-title"><i class="fas fa-exchange-alt"></i> Pindah Kelas Masal</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Pindahkan <strong id="lblBulkMoveCount" style="color: var(--star-gold);">0</strong> siswa dari <span id="lblBulkMoveFrom" style="color: var(--text-main);"></span> ke kelas tujuan di bawah ini:</p>
+            <div class="form-col" style="margin-bottom: 25px;">
+                <label>Pilih Kelas Tujuan</label>
+                <select id="selectBulkMoveTarget" class="form-control">
+                    <!-- Opsi Kelas Dirender di JS -->
+                </select>
+            </div>
+            <button class="btn-add" id="btnProsesBulkMove" style="width: 100%; padding: 12px;" onclick="prosesBulkMove()">Pindahkan Siswa</button>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Siswa Tunggal -->
+    <div id="addSiswaModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('addSiswaModal')"><i class="fas fa-times"></i></button>
+            <h2 class="modal-title"><i class="fas fa-user-plus"></i> Tambah Siswa</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Siswa akan ditambahkan ke kelas: <strong id="lblAddSiswaKelas" style="color: var(--star-gold);"></strong></p>
+            <div class="form-col" style="margin-bottom: 25px;">
+                <label>Nama Lengkap Siswa</label>
+                <input type="text" id="inputNamaSiswa" class="form-control" placeholder="Ketik nama lengkap...">
+            </div>
+            <button class="btn-add" style="width: 100%; padding: 12px;" onclick="tambahSiswaSingle()">Tambahkan ke Daftar</button>
+        </div>
+    </div>
+
+    <!-- Modal Bulk Add Array -->
+    <div id="bulkAddModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-modal" onclick="closeModal('bulkAddModal')"><i class="fas fa-times"></i></button>
+            <h2 class="modal-title"><i class="fas fa-layer-group"></i> Bulk Add Siswa</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">Target Kelas: <strong id="lblBulkAddKelas" style="color: var(--star-gold);"></strong>. Anda dapat menyalin data berformat Array JSON <code>["Nama 1", "Nama 2"]</code> atau daftar nama yang dipisahkan baris (enter).</p>
+            
+            <div class="form-col" style="margin-bottom: 20px;">
+                <label>Input Data Siswa</label>
+                <textarea id="inputBulkData" class="form-control" placeholder='["Budi Santoso", "Andi Wijaya"]&#10;ATAU&#10;Budi Santoso&#10;Andi Wijaya'></textarea>
+                <div style="font-size: 0.75rem; color: var(--warning); margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> Peringatan: Nama yang sudah ada di kelas ini akan dilewati (tidak duplikat).</div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn-cancel" onclick="closeModal('bulkAddModal')">Batal</button>
+                <button class="btn-success-action" onclick="prosesBulkAdd()"><i class="fas fa-bolt"></i> Eksekusi Bulk Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Siswa / Pindah Kelas Individu & DATA PRIBADI -->
+    <div id="editSiswaModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="close-modal" onclick="closeModal('editSiswaModal')"><i class="fas fa-times"></i></button>
+            <h2 class="modal-title"><i class="fas fa-user-edit"></i> Profil Siswa</h2>
+            
+            <div style="background: rgba(255,255,255,0.03); padding: 18px; border-radius: 16px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 15px;">
+                <div class="student-avatar" id="editSiswaAvatar" style="width: 55px; height: 55px; font-size: 1.5rem;">A</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 1.15rem; color: var(--text-main);" id="lblEditSiswaNama">Nama Siswa</div>
+                    
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px; display: flex; align-items: center; gap: 8px;">
+                        Kelas: 
+                        <select id="selectPindahKelas" style="background: rgba(157, 78, 221, 0.1); border: 1px solid var(--cosmic-purple); color: var(--cosmic-pink); border-radius: 8px; padding: 2px 8px; font-family: 'Poppins', sans-serif; font-size: 0.85rem; outline: none; cursor: pointer;">
+                            <!-- Opsi kelas dirender di JS -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="color: var(--text-main); display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Status Pendataan Pribadi:</label>
+                <div id="dataStatusContainer">
+                    <div style="font-size:0.85rem; color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Memeriksa data...</div>
+                </div>
+            </div>
+
+            <label style="color: var(--text-main); display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem;">Keanggotaan Organisasi Khusus:</label>
+            
+            <label class="checkbox-group">
+                <input type="checkbox" id="cbOrgOsis">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-weight: 600; color: #93c5fd; font-size: 0.9rem;">Pengurus OSIS</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Menandai siswa sebagai anggota OSIS</span>
+                </div>
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="cbOrgMpk">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-weight: 600; color: #6ee7b7; font-size: 0.9rem;">Pengurus MPK</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Menandai siswa sebagai anggota MPK</span>
+                </div>
+            </label>
+            <label class="checkbox-group" style="margin-bottom: 25px;">
+                <input type="checkbox" id="cbOrgDuta">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-weight: 600; color: var(--star-gold); font-size: 0.9rem;">Duta Sekolah</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Menandai siswa berprestasi / Duta</span>
+                </div>
+            </label>
+
+            <div style="display: flex; gap: 10px; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <button class="btn-danger-action" onclick="hapusSiswa()"><i class="fas fa-trash-alt"></i> Hapus Siswa</button>
+                <button class="btn-add" style="flex:1; justify-content:center;" onclick="simpanProfilSiswa()"><i class="fas fa-save"></i> Simpan Profil</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Data Siswa -->
+    <div id="detailSiswaModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="close-modal" onclick="closeModal('detailSiswaModal'); document.getElementById('editSiswaModal').classList.add('active');"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title"><i class="fas fa-id-card"></i> Detail Data Pribadi</h2>
+            
+            <div id="detailDataContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <!-- Data dirender disini -->
+            </div>
+            
+            <button class="btn-danger-action" style="width: 100%; margin-top: 20px;" onclick="hapusDataPribadiSiswa()"><i class="fas fa-eraser"></i> Hapus & Reset Data Ini</button>
+        </div>
+    </div>
+
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast">
+        <i class="fas fa-info-circle"></i>
+        <span id="toastMsg">Notifikasi</span>
+    </div>
+
+    <!-- FIREBASE & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Konfigurasi Aether
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjyKJQbGcim9esLh_bAZnxpM4jtPI5sUU",
+            authDomain: "osmaaether.firebaseapp.com",
+            projectId: "osmaaether",
+            storageBucket: "osmaaether.firebasestorage.app",
+            messagingSenderId: "943721519971",
+            appId: "1:943721519971:web:5f44039952b9541d9a5156"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const PERMISSION_KEY = "daftar_siswa"; 
+        const SUPER_ADMIN_EMAIL = "devintj11@gmail.com";
+
+        // APP STATE (Multi-Year Draft System)
+        let masterData = { 
+            active_year: "2024/2025", 
+            years: {
+                "2024/2025": { classes: {}, organizations: { OSIS: [], MPK: [], DUTA: [] } }
+            }
+        };
+        
+        let currentViewYear = null; 
+        let activeClass = null; 
+        let activeStudentEditing = null; 
+        let completedProfilesCache = new Set(); 
+        
+        // State untuk Multi-Selection
+        let selectedStudents = new Set();
+
+        // DOM Elements
+        const accessDeniedScreen = document.getElementById('accessDenied');
+        const appContainer = document.getElementById('appContainer');
+        const mainLoader = document.getElementById('mainLoader');
+        const dynamicNavItems = document.getElementById('dynamicNavItems');
+
+        function getActiveClasses() { return masterData.years[currentViewYear]?.classes || {}; }
+        function getActiveOrgs() { return masterData.years[currentViewYear]?.organizations || { OSIS: [], MPK: [], DUTA: [] }; }
+
+        // ================= PROTEKSI & INISIALISASI =================
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                try { window.location.href = "../login.html"; } catch (e) {}
+            } else {
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                document.getElementById('userAvatarDisplay').innerText = user.email.charAt(0).toUpperCase();
+                await checkAccess(user.email);
+            }
+        });
+
+        async function checkAccess(email) {
+            try {
+                const permRef = doc(db, "settings", "permissions");
+                const permSnap = await getDoc(permRef);
+                const modRef = doc(db, "settings", "modules");
+                const modSnap = await getDoc(modRef);
+
+                let hasAccess = false;
+                let isSuperAdmin = false;
+                let userTitle = "Pengurus OSIS";
+
+                if (permSnap.exists()) {
+                    const accessData = permSnap.data();
+                    isSuperAdmin = accessData.superadmins?.includes(email) || email === SUPER_ADMIN_EMAIL;
+                    hasAccess = isSuperAdmin || (accessData[PERMISSION_KEY] && accessData[PERMISSION_KEY].includes(email));
+                    
+                    const safeKey = email.replace(/\./g, '_');
+                    if(accessData.titles && accessData.titles[safeKey]) userTitle = accessData.titles[safeKey];
+                    else if (isSuperAdmin) userTitle = "Operator Sistem";
+                }
+
+                if (!hasAccess) { accessDeniedScreen.style.display = "flex"; return; }
+                accessDeniedScreen.style.display = "none";
+                document.getElementById('userTitleDisplay').innerText = userTitle;
+                
+                if(modSnap.exists()) {
+                    const modulesList = modSnap.data().list || [];
+                    const accessData = permSnap.exists() ? permSnap.data() : {};
+                    modulesList.forEach(mod => {
+                        const hasModAccess = (accessData[mod.id] && accessData[mod.id].includes(email)) || isSuperAdmin;
+                        if (hasModAccess) {
+                            const isActive = mod.id === PERMISSION_KEY ? "active" : "";
+                            dynamicNavItems.innerHTML += `<a href="${mod.link}" class="nav-item ${isActive}"><i class="fas ${mod.icon}"></i> ${mod.name}</a>`;
+                        }
+                    });
+                }
+                
+                await loadMasterData();
+
+            } catch (error) { showToast("Gagal verifikasi akses.", true); }
+        }
+
+        // ================= CORE CLOUD LOGIC =================
+        async function loadMasterData() {
+            try {
+                const docRef = doc(db, "settings", "data_siswa");
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    let data = docSnap.data();
+                    
+                    if (!data.years) {
+                        const oldTa = data.tahun_ajaran || "2024/2025";
+                        masterData = { active_year: oldTa, years: {} };
+                        masterData.years[oldTa] = {
+                            classes: data.classes || {},
+                            organizations: data.organizations || { OSIS: [], MPK: [], DUTA: [] }
+                        };
+                        await saveToCloud();
+                    } else {
+                        masterData = data;
+                    }
+                } else {
+                    await saveToCloud();
+                }
+
+                await refreshProfilesCache();
+
+                currentViewYear = masterData.active_year;
+                
+                renderTahunAjaranDropdown();
+                renderClassList();
+                updateArchiveBadge();
+                
+                mainLoader.style.display = 'none';
+                appContainer.style.display = 'block';
+            } catch (err) { console.error(err); showToast("Gagal memuat data siswa dari Cloud.", true); }
+        }
+
+        async function saveToCloud() {
+            try { await setDoc(doc(db, "settings", "data_siswa"), masterData); } 
+            catch (err) { showToast("Gagal sinkronisasi dengan Cloud.", true); throw err; }
+        }
+
+        async function refreshProfilesCache() {
+            try {
+                const profilesQuery = await getDocs(collection(db, "student_profiles"));
+                completedProfilesCache.clear();
+                profilesQuery.forEach(doc => { completedProfilesCache.add(doc.id); });
+            } catch (e) {
+                console.error("Gagal load profile cache", e);
+            }
+        }
+
+        // FUNGSI HELPER: MIGRASI DOKUMEN FIRESTORE KETIKA PINDAH KELAS
+        async function migrateStudentData(nama, oldClass, newClass) {
+            const oldProfileId = generateProfileId(nama, oldClass);
+            const newProfileId = generateProfileId(nama, newClass);
+            
+            // 1. Migrasi dokumen profil siswa jika mereka sudah pernah mengisi data
+            if (completedProfilesCache.has(oldProfileId)) {
+                try {
+                    const profileSnap = await getDoc(doc(db, "student_profiles", oldProfileId));
+                    if (profileSnap.exists()) {
+                        let data = profileSnap.data();
+                        data.kelas = newClass; 
+                        
+                        await setDoc(doc(db, "student_profiles", newProfileId), data);
+                        await deleteDoc(doc(db, "student_profiles", oldProfileId));
+                    }
+                } catch(e) { console.error("Gagal migrasi profil", e); }
+            }
+            
+            // 2. Migrasi dokumen Token (Link Form) jika link sudah terbuat tapi belum diisi
+            try {
+                const q = query(collection(db, "data_invites"), where("profileId", "==", oldProfileId));
+                const inviteSnaps = await getDocs(q);
+                if (!inviteSnaps.empty) {
+                    const inviteDoc = inviteSnaps.docs[0];
+                    await setDoc(doc(db, "data_invites", inviteDoc.id), {
+                        profileId: newProfileId,
+                        kelas: newClass
+                    }, { merge: true }); 
+                }
+            } catch (e) { console.error("Gagal migrasi token link", e); }
+        }
+
+        // ================= MANAJEMEN TAHUN AJARAN (ARSIP) =================
+        window.renderTahunAjaranDropdown = function() {
+            const selectView = document.getElementById('selectViewYear');
+            const selectSource = document.getElementById('selectSourceYear');
+            
+            selectView.innerHTML = ''; selectSource.innerHTML = '';
+            const years = Object.keys(masterData.years).sort((a,b) => b.localeCompare(a)); 
+            
+            years.forEach(year => {
+                const optView = document.createElement('option');
+                optView.value = year;
+                optView.text = year === masterData.active_year ? `★ ${year}` : year;
+                if(year === currentViewYear) optView.selected = true;
+                selectView.appendChild(optView);
+
+                const optSource = document.createElement('option');
+                optSource.value = year; optSource.text = year;
+                selectSource.appendChild(optSource);
+            });
+        }
+
+        window.changeViewYear = function() {
+            currentViewYear = document.getElementById('selectViewYear').value;
+            activeClass = null; 
+            selectedStudents.clear(); // Reset seleksi saat ganti tahun
+            updateBulkActionBar();
+            renderClassList(); updateUIPanelKanan(); updateArchiveBadge();
+        }
+
+        function updateArchiveBadge() {
+            const badge = document.getElementById('badgeArchive');
+            const setDefaultBtn = document.getElementById('setDefaultSection');
+            
+            if (currentViewYear !== masterData.active_year) {
+                badge.classList.add('active'); setDefaultBtn.style.display = 'block';
+            } else {
+                badge.classList.remove('active'); setDefaultBtn.style.display = 'none';
+            }
+        }
+
+        window.setAsDefaultYear = async function() {
+            if(!confirm(`Jadikan ${currentViewYear} sebagai Tahun Ajaran Aktif (Default) website ini?`)) return;
+            masterData.active_year = currentViewYear;
+            try {
+                await saveToCloud(); showToast(`${currentViewYear} sekarang menjadi tahun aktif.`);
+                renderTahunAjaranDropdown(); updateArchiveBadge(); closeModal('tahunAjaranModal');
+            } catch(e) {}
+        }
+
+        function getPromotedClassesAndStudents(oldClasses) {
+            let newClasses = {};
+            for (let oldClass in oldClasses) {
+                if ((oldClass.includes('X') && !oldClass.includes('XI')) || oldClass.includes('10-') || oldClass.includes('10 ')) {
+                    newClasses[oldClass] = []; 
+                }
+            }
+            for (let oldClass in oldClasses) {
+                let students = oldClasses[oldClass];
+                let newClassName = null;
+
+                if (oldClass.includes('XII') || oldClass.includes('12')) continue; 
+                else if (oldClass.includes('XI') || oldClass.includes('11')) newClassName = oldClass.replace('XI', 'XII').replace('11', '12');
+                else if (oldClass.includes('X') || oldClass.includes('10')) newClassName = oldClass.replace('X', 'XI').replace('10', '11');
+                else newClassName = oldClass; 
+
+                if (newClassName) {
+                    if (!newClasses[newClassName]) newClasses[newClassName] = [];
+                    newClasses[newClassName] = newClasses[newClassName].concat(students);
+                }
+            }
+            return newClasses;
+        }
+
+        window.buatTahunAjaranBaru = async function() {
+            const input = document.getElementById('inputNewYear').value.trim();
+            const cbAutoPromote = document.getElementById('cbAutoPromote').checked;
+            const sourceYear = document.getElementById('selectSourceYear').value;
+
+            if(!input) { showToast("Isi tahun ajaran baru!", true); return; }
+            if(masterData.years[input]) { showToast("Tahun ajaran tersebut sudah ada!", true); return; }
+
+            const btn = document.getElementById('btnBuatTahunBaru');
+            btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses Draft...`;
+
+            try {
+                let newClasses = {}; let newOrgs = { OSIS: [], MPK: [], DUTA: [] }; 
+                if (cbAutoPromote && sourceYear && masterData.years[sourceYear]) {
+                    newClasses = getPromotedClassesAndStudents(masterData.years[sourceYear].classes);
+                }
+                masterData.years[input] = { classes: newClasses, organizations: newOrgs };
+                masterData.active_year = input; currentViewYear = input;
+
+                await saveToCloud();
+                showToast("Tahun Ajaran Baru berhasil dibuat & diaktifkan!"); closeModal('tahunAjaranModal');
+                
+                activeClass = null; selectedStudents.clear(); updateBulkActionBar();
+                renderTahunAjaranDropdown(); renderClassList(); updateUIPanelKanan(); updateArchiveBadge();
+            } catch(e) { showToast("Terjadi kesalahan sistem.", true); } 
+            finally { btn.disabled = false; btn.innerHTML = `Buat & Simpan Sebagai Default`; }
+        }
+
+        // ================= MANAJEMEN KELAS =================
+        function renderClassList() {
+            const container = document.getElementById('classListContainer');
+            container.innerHTML = '';
+            const activeClasses = getActiveClasses();
+            const classNames = Object.keys(activeClasses).sort();
+            
+            if(classNames.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px; font-size: 0.85rem;"><i class="fas fa-folder-open" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i><br>Belum ada daftar kelas di tahun ajaran ini.</div>`;
+                activeClass = null; updateUIPanelKanan(); return;
+            }
+
+            classNames.forEach(cls => {
+                const count = activeClasses[cls].length;
+                const div = document.createElement('div');
+                div.className = `class-item ${activeClass === cls ? 'active' : ''}`;
+                div.onclick = () => selectClass(cls);
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-chalkboard" style="color: ${activeClass === cls ? 'var(--cosmic-pink)' : 'var(--text-muted)'};"></i> 
+                        ${cls}
+                    </div> 
+                    <span class="class-count">${count} Siswa</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function selectClass(className) {
+            activeClass = className;
+            selectedStudents.clear(); // Reset seleksi saat ganti kelas
+            updateBulkActionBar();
+            renderClassList(); updateUIPanelKanan(); renderStudentList();
+        }
+
+        function updateUIPanelKanan() {
+            const isSelected = activeClass !== null;
+            document.getElementById('activeClassTitle').innerText = isSelected ? activeClass : 'Pilih Kelas';
+            
+            document.getElementById('btnEditKelas').disabled = !isSelected;
+            document.getElementById('btnHapusKelas').disabled = !isSelected;
+            document.getElementById('btnBulkAdd').disabled = !isSelected;
+            document.getElementById('btnAddSiswa').disabled = !isSelected;
+            document.getElementById('btnSelectAll').disabled = !isSelected;
+            
+            if(!isSelected) {
+                document.getElementById('activeClassCount').innerText = "Total: 0 Siswa";
+                document.getElementById('studentListContainer').innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);"><img src="https://cdn-icons-png.flaticon.com/512/3068/3068327.png" alt="Empty" style="width: 80px; opacity: 0.2; filter: grayscale(100%) invert(1); margin-bottom: 15px;"><br>Silakan pilih kelas di panel sebelah kiri untuk melihat daftar siswa.</div>`;
+            } else {
+                document.getElementById('activeClassCount').innerText = `Total: ${getActiveClasses()[activeClass].length} Siswa`;
+                document.getElementById('lblAddSiswaKelas').innerText = activeClass;
+                document.getElementById('lblBulkAddKelas').innerText = activeClass;
+            }
+        }
+
+        window.tambahKelas = async function() {
+            const input = document.getElementById('inputNamaKelas').value.trim();
+            if(!input) return;
+            if(getActiveClasses()[input]) { showToast("Kelas sudah ada!", true); return; }
+            
+            masterData.years[currentViewYear].classes[input] = [];
+            try { await saveToCloud(); showToast(`Kelas dibuat!`); closeModal('addKelasModal'); document.getElementById('inputNamaKelas').value = ''; selectClass(input); } catch(e) {}
+        }
+
+        // FUNGSI EDIT KELAS
+        window.bukaModalEditKelas = function() {
+            if(!activeClass) return;
+            document.getElementById('inputEditNamaKelas').value = activeClass;
+            openModal('editKelasModal');
+        }
+
+        window.simpanEditKelas = async function() {
+            if(!activeClass) return;
+            const newName = document.getElementById('inputEditNamaKelas').value.trim();
+            if(!newName || newName === activeClass) { closeModal('editKelasModal'); return; }
+            if(getActiveClasses()[newName]) { showToast("Nama kelas sudah digunakan!", true); return; }
+
+            const btn = document.getElementById('btnSimpanEditKelas');
+            btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses Migrasi...`;
+
+            try {
+                const students = getActiveClasses()[activeClass];
+                
+                // 1. Ubah di Array Master Data
+                masterData.years[currentViewYear].classes[newName] = [...students];
+                
+                // 2. Migrasi Database Profil Siswa
+                let migrationPromises = [];
+                for(let nama of students) {
+                    migrationPromises.push(migrateStudentData(nama, activeClass, newName));
+                }
+                await Promise.all(migrationPromises);
+
+                // 3. Hapus kelas lama
+                delete masterData.years[currentViewYear].classes[activeClass];
+                
+                await saveToCloud();
+                await refreshProfilesCache();
+
+                showToast(`Kelas berhasil diubah menjadi ${newName}`);
+                closeModal('editKelasModal');
+                
+                activeClass = newName; 
+                selectedStudents.clear(); updateBulkActionBar();
+                renderClassList(); updateUIPanelKanan(); renderStudentList();
+
+            } catch(e) {
+                console.error(e); showToast("Terjadi kesalahan sistem saat mengubah nama kelas.", true);
+            } finally {
+                btn.disabled = false; btn.innerHTML = `Simpan Perubahan`;
+            }
+        }
+
+        window.hapusKelasAktif = async function() {
+            if(!activeClass) return;
+            if(!confirm(`Yakin ingin menghapus kelas ${activeClass}? Seluruh nama siswa di dalamnya akan ikut terhapus dari daftar kelas tahun ini.`)) return;
+            
+            getActiveClasses()[activeClass].forEach(student => removeStudentFromOrgs(student));
+            delete masterData.years[currentViewYear].classes[activeClass];
+            activeClass = null;
+            selectedStudents.clear(); updateBulkActionBar();
+            try { await saveToCloud(); showToast(`Kelas dihapus!`); renderClassList(); updateUIPanelKanan(); } catch(e) {}
+        }
+
+        // ================= MANAJEMEN SISWA & SELEKSI MASAL =================
+        function generateProfileId(nama, kelas) {
+            return `${nama}_${kelas}_${currentViewYear}`.replace(/[\/\\]/g, '-'); 
+        }
+
+        // FUNGSI MULTI-SELECT
+        window.toggleStudentSelection = function(e, nama) {
+            e.stopPropagation(); // Mencegah modal edit terbuka saat klik checkbox
+            if(e.target.checked) selectedStudents.add(nama);
+            else selectedStudents.delete(nama);
+            updateBulkActionBar();
+            
+            // Re-render hanya kartu yang bersangkutan untuk mengganti efek highlight
+            const card = e.target.closest('.student-card');
+            if(card) {
+                if(e.target.checked) card.classList.add('selected');
+                else card.classList.remove('selected');
+            }
+        }
+
+        window.selectAllStudents = function() {
+            if(!activeClass) return;
+            const searchQ = document.getElementById('searchSiswaInput').value.toLowerCase();
+            const filtered = getActiveClasses()[activeClass].filter(s => s.toLowerCase().includes(searchQ));
+            
+            filtered.forEach(s => selectedStudents.add(s));
+            renderStudentList();
+            updateBulkActionBar();
+        }
+
+        window.clearSelection = function() {
+            selectedStudents.clear();
+            renderStudentList();
+            updateBulkActionBar();
+        }
+
+        function updateBulkActionBar() {
+            const bar = document.getElementById('bulkActionBar');
+            if(selectedStudents.size > 0) {
+                bar.style.display = 'flex';
+                document.getElementById('lblSelectedCount').innerText = selectedStudents.size;
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        window.renderStudentList = function() {
+            if(!activeClass) return;
+            const container = document.getElementById('studentListContainer');
+            container.innerHTML = '';
+            const searchQ = document.getElementById('searchSiswaInput').value.toLowerCase();
+            const filtered = getActiveClasses()[activeClass].filter(s => s.toLowerCase().includes(searchQ)).sort();
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);"><i class="fas fa-search" style="font-size:2rem; margin-bottom:10px; opacity:0.5;"></i><br>Tidak ada siswa ditemukan.</div>`; return;
+            }
+
+            filtered.forEach(nama => {
+                const badges = [];
+                const orgs = getActiveOrgs();
+                if(orgs.OSIS?.includes(nama)) badges.push({name: "OSIS", cls: "osis"});
+                if(orgs.MPK?.includes(nama)) badges.push({name: "MPK", cls: "mpk"});
+                if(orgs.DUTA?.includes(nama)) badges.push({name: "DUTA", cls: "duta"});
+                
+                let badgesHtml = badges.length > 0 ? `<div class="org-badges">` + badges.map(b => `<span class="org-badge ${b.cls}">${b.name}</span>`).join('') + `</div>` : '';
+
+                const profileId = generateProfileId(nama, activeClass);
+                const isDataComplete = completedProfilesCache.has(profileId);
+                const iconClass = isDataComplete ? 'fas fa-check-circle lengkap' : 'fas fa-times-circle belum';
+                
+                const isSelected = selectedStudents.has(nama);
+
+                const card = document.createElement('div');
+                card.className = `student-card ${isSelected ? 'selected' : ''}`;
+                card.onclick = () => bukaModalEditSiswa(nama);
+                
+                // Tambahkan checkbox ke dalam card
+                card.innerHTML = `
+                    <input type="checkbox" class="student-select-cb" value="${nama}" ${isSelected ? 'checked' : ''} onclick="toggleStudentSelection(event, '${nama}')" title="Pilih Siswa">
+                    <div class="student-avatar">${nama.charAt(0).toUpperCase()}</div>
+                    <div class="student-info">
+                        <div class="student-name" title="${nama}">${nama}</div>
+                        ${badgesHtml}
+                    </div>
+                    <i class="${iconClass} status-indicator" title="${isDataComplete ? 'Data Lengkap' : 'Data Belum Lengkap'}"></i>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.tambahSiswaSingle = async function() {
+            if(!activeClass) return;
+            const nama = document.getElementById('inputNamaSiswa').value.trim();
+            if(!nama) return;
+            if(getActiveClasses()[activeClass].includes(nama)) { showToast("Siswa sudah ada di kelas ini!", true); return; }
+
+            masterData.years[currentViewYear].classes[activeClass].push(nama);
+            try {
+                await saveToCloud(); showToast(`${nama} ditambahkan.`); document.getElementById('inputNamaSiswa').value = ''; closeModal('addSiswaModal');
+                renderClassList(); document.getElementById('activeClassCount').innerText = `Total: ${getActiveClasses()[activeClass].length} Siswa`; renderStudentList();
+            } catch(e) {}
+        }
+        
+        window.prosesBulkAdd = async function() {
+            if(!activeClass) return;
+            const rawData = document.getElementById('inputBulkData').value.trim();
+            if(!rawData) { showToast("Input tidak boleh kosong!", true); return; }
+
+            let newStudents = [];
+            if (rawData.startsWith('[') && rawData.endsWith(']')) {
+                try { newStudents = JSON.parse(rawData); if(!Array.isArray(newStudents)) throw new Error(); } 
+                catch(e) { showToast("Format JSON Array tidak valid!", true); return; }
+            } else {
+                newStudents = rawData.split('\n').map(s => s.trim()).filter(s => s !== '');
+            }
+
+            const existingStudents = new Set(getActiveClasses()[activeClass].map(s => s.toLowerCase()));
+            let addedCount = 0;
+
+            newStudents.forEach(nama => {
+                if(typeof nama === 'string' && nama.trim() !== '') {
+                    const cleanName = nama.trim();
+                    if(!existingStudents.has(cleanName.toLowerCase())) {
+                        masterData.years[currentViewYear].classes[activeClass].push(cleanName);
+                        existingStudents.add(cleanName.toLowerCase());
+                        addedCount++;
+                    }
+                }
+            });
+
+            if(addedCount === 0) { showToast("Tidak ada siswa baru ditambahkan.", true); return; }
+
+            try {
+                await saveToCloud(); showToast(`${addedCount} siswa ditambahkan!`); document.getElementById('inputBulkData').value = ''; closeModal('bulkAddModal');
+                renderClassList(); document.getElementById('activeClassCount').innerText = `Total: ${getActiveClasses()[activeClass].length} Siswa`; renderStudentList();
+            } catch(e) {}
+        }
+
+        // ================= FUNGSI BULK MOVE KELAS =================
+        window.openBulkMoveModal = function() {
+            if(selectedStudents.size === 0) return;
+            
+            document.getElementById('lblBulkMoveCount').innerText = selectedStudents.size;
+            document.getElementById('lblBulkMoveFrom').innerText = activeClass;
+            
+            const selectTarget = document.getElementById('selectBulkMoveTarget');
+            selectTarget.innerHTML = '';
+            
+            const allClassNames = Object.keys(getActiveClasses()).sort();
+            allClassNames.forEach(cls => {
+                if (cls !== activeClass) { // Kecualikan kelas asal
+                    const opt = document.createElement('option');
+                    opt.value = cls; opt.text = cls;
+                    selectTarget.appendChild(opt);
+                }
+            });
+            
+            if (selectTarget.options.length === 0) {
+                showToast("Belum ada kelas lain yang tersedia untuk dituju!", true);
+                return;
+            }
+            
+            openModal('bulkMoveModal');
+        }
+
+        window.prosesBulkMove = async function() {
+            const targetKelas = document.getElementById('selectBulkMoveTarget').value;
+            if(!targetKelas || !activeClass) return;
+
+            const btn = document.getElementById('btnProsesBulkMove');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses Pemindahan...`;
+
+            try {
+                let migrationPromises = [];
+                let movedCount = 0;
+                let duplicateCount = 0;
+
+                selectedStudents.forEach(nama => {
+                    // Proteksi jika nama sudah ada di kelas tujuan
+                    if(getActiveClasses()[targetKelas].includes(nama)) {
+                        duplicateCount++;
+                        return; // Lewati siswa ini
+                    }
+
+                    // Hapus dari kelas lama, pindahkan ke kelas baru
+                    masterData.years[currentViewYear].classes[activeClass] = masterData.years[currentViewYear].classes[activeClass].filter(s => s !== nama);
+                    masterData.years[currentViewYear].classes[targetKelas].push(nama);
+                    
+                    // Siapkan antrian update database Firebase
+                    migrationPromises.push(migrateStudentData(nama, activeClass, targetKelas));
+                    movedCount++;
+                });
+
+                if (movedCount > 0) {
+                    await Promise.all(migrationPromises); // Eksekusi update Cloud secara massal & bersamaan
+                    await saveToCloud();
+                    await refreshProfilesCache();
+                    
+                    let msg = `${movedCount} siswa berhasil dipindah ke ${targetKelas}.`;
+                    if(duplicateCount > 0) msg += ` (${duplicateCount} siswa dilewati karena nama duplikat).`;
+                    showToast(msg);
+                } else if (duplicateCount > 0) {
+                    showToast("Semua siswa yang dipilih sudah ada di kelas tujuan.", true);
+                }
+
+                closeModal('bulkMoveModal');
+                selectedStudents.clear();
+                updateBulkActionBar();
+                renderClassList();
+                document.getElementById('activeClassCount').innerText = `Total: ${getActiveClasses()[activeClass].length} Siswa`;
+                renderStudentList();
+
+            } catch(e) {
+                console.error(e);
+                showToast("Terjadi kesalahan jaringan saat memindahkan siswa.", true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `Pindahkan Siswa`;
+            }
+        }
+
+
+        // ================= EDIT & LINK DATA PRIBADI INDIVIDU =================
+        window.bukaModalEditSiswa = async function(nama) {
+            activeStudentEditing = nama;
+            document.getElementById('editSiswaAvatar').innerText = nama.charAt(0).toUpperCase();
+            document.getElementById('lblEditSiswaNama').innerText = nama;
+            
+            // Render Pindah Kelas Dropdown Individu
+            const selectPindah = document.getElementById('selectPindahKelas');
+            selectPindah.innerHTML = '';
+            const allClassNames = Object.keys(getActiveClasses()).sort();
+            allClassNames.forEach(cls => {
+                const opt = document.createElement('option');
+                opt.value = cls; opt.text = cls;
+                if(cls === activeClass) opt.selected = true;
+                selectPindah.appendChild(opt);
+            });
+
+            const orgs = getActiveOrgs();
+            document.getElementById('cbOrgOsis').checked = orgs.OSIS?.includes(nama) || false;
+            document.getElementById('cbOrgMpk').checked = orgs.MPK?.includes(nama) || false;
+            document.getElementById('cbOrgDuta').checked = orgs.DUTA?.includes(nama) || false;
+
+            const profileId = generateProfileId(nama, activeClass);
+            const statusContainer = document.getElementById('dataStatusContainer');
+            statusContainer.innerHTML = `<div style="font-size:0.85rem; color:var(--text-muted); padding:10px;"><i class="fas fa-circle-notch fa-spin"></i> Sedang memeriksa database...</div>`;
+            
+            openModal('editSiswaModal');
+
+            try {
+                const profileRef = doc(db, "student_profiles", profileId);
+                const profileSnap = await getDoc(profileRef);
+
+                if (profileSnap.exists()) {
+                    statusContainer.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 18px; border-radius: 12px;">
+                            <span style="color: var(--success); font-weight: 600; font-size: 0.95rem;"><i class="fas fa-check-circle"></i> Data Sudah Lengkap</span>
+                            <button class="btn-success-action" style="padding: 6px 12px; font-size: 0.85rem;" onclick="lihatDetailSiswa('${profileId}')">Lihat Data</button>
+                        </div>
+                    `;
+                } else {
+                    const q = query(collection(db, "data_invites"), where("profileId", "==", profileId));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        const inviteDoc = querySnapshot.docs[0];
+                        const tokenUrl = new URL(`../lengkapi_data.html?token=${inviteDoc.id}`, window.location.href).href;
+                        
+                        statusContainer.innerHTML = `
+                            <div style="background: rgba(244, 140, 6, 0.1); border: 1px dashed var(--star-gold); padding: 15px; border-radius: 12px;">
+                                <div style="color: var(--star-gold); font-size: 0.85rem; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-clock"></i> Menunggu Siswa Mengisi Data Form</div>
+                                <div style="display:flex; gap:10px;">
+                                    <input type="text" class="form-control" value="${tokenUrl}" readonly style="padding: 8px 12px; font-size: 0.8rem; color: var(--text-muted);">
+                                    <button class="btn-add" style="padding: 8px 15px;" onclick="copyLink('${tokenUrl}')" title="Copy Link"><i class="fas fa-copy"></i></button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        statusContainer.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); padding: 12px 18px; border-radius: 12px;">
+                                <span style="color: #fca5a5; font-size: 0.9rem; font-weight: 500;"><i class="fas fa-exclamation-circle"></i> Siswa belum mendata diri</span>
+                                <button class="btn-add" style="padding: 8px 15px; font-size: 0.85rem;" onclick="generateLinkData('${nama}', '${activeClass}')"><i class="fas fa-link"></i> Buat Link</button>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (err) {
+                statusContainer.innerHTML = `<span style="color: var(--danger); font-size: 0.85rem;">Gagal memeriksa status data. Pastikan koneksi aman.</span>`;
+            }
+        }
+
+        window.generateLinkData = async function(nama, kelas) {
+            const btn = event.currentTarget;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+            btn.disabled = true;
+
+            const profileId = generateProfileId(nama, kelas);
+            const token = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+            
+            const inviteData = {
+                profileId: profileId,
+                nama: nama,
+                kelas: kelas,
+                tahun_ajaran: currentViewYear, // Tagging
+                createdAt: new Date().toISOString(),
+                createdBy: auth.currentUser.email
+            };
+
+            try {
+                await setDoc(doc(db, "data_invites", token), inviteData);
+                showToast("Link undangan form berhasil dibuat!");
+                bukaModalEditSiswa(nama); // Refresh tampilan status form
+            } catch (err) {
+                showToast("Gagal membuat link undangan", true);
+                btn.innerHTML = `<i class="fas fa-link"></i> Buat Link`;
+                btn.disabled = false;
+            }
+        }
+
+        window.copyLink = function(url) {
+            navigator.clipboard.writeText(url).then(() => showToast("Link tersalin! Kirimkan ke siswa terkait via WhatsApp."));
+        }
+
+        window.lihatDetailSiswa = async function(profileId) {
+            closeModal('editSiswaModal');
+            openModal('detailSiswaModal');
+            
+            const container = document.getElementById('detailDataContainer');
+            container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 20px;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Memuat Biodata...</div>`;
+            
+            try {
+                const docSnap = await getDoc(doc(db, "student_profiles", profileId));
+                if (docSnap.exists()) {
+                    const d = docSnap.data();
+                    container.innerHTML = `
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 3px;">Nama Lengkap & Kelas</div>
+                            <div style="font-weight: 700; font-size: 1.1rem; color: var(--star-gold); margin-bottom: 15px;">${d.nama} <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">(${d.kelas})</span></div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">Email / Akun</div>
+                                    <div style="font-weight: 600; font-size: 0.9rem;">${d.email || '-'}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">No. HP / WhatsApp</div>
+                                    <div style="font-weight: 600; font-size: 0.9rem;">${d.no_hp || '-'}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">Tempat, Tanggal Lahir</div>
+                                    <div style="font-weight: 600; font-size: 0.9rem;">${d.tempat_lahir || '-'}, ${d.tanggal_lahir || '-'}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">Gender & Agama</div>
+                                    <div style="font-weight: 600; font-size: 0.9rem;">${d.jenis_kelamin || '-'} &nbsp;|&nbsp; ${d.agama || '-'}</div>
+                                </div>
+                                <div style="grid-column: 1 / -1; margin-top: 5px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 3px;">Alamat Rumah</div>
+                                    <div style="font-weight: 600; font-size: 0.9rem; line-height: 1.4;">${d.alamat || '-'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.querySelector('#detailSiswaModal .btn-danger-action').setAttribute('onclick', `hapusDataPribadiSiswa('${profileId}')`);
+                }
+            } catch (err) {
+                container.innerHTML = `<div style="color:var(--danger); text-align:center; padding: 20px;">Gagal memuat detail data.</div>`;
+            }
+        }
+
+        window.hapusDataPribadiSiswa = async function(profileId) {
+            if(!confirm("Yakin ingin mereset/menghapus form data pribadi siswa ini? Profil akun website siswa bersangkutan tidak akan terhapus, namun mereka harus mengisi ulang link pendataan terbaru.")) return;
+            
+            try {
+                await deleteDoc(doc(db, "student_profiles", profileId));
+                completedProfilesCache.delete(profileId); 
+                
+                showToast("Biodata pribadi berhasil dihapus.");
+                closeModal('detailSiswaModal');
+                renderStudentList(); 
+            } catch (err) {
+                showToast("Gagal menghapus data.", true);
+            }
+        }
+
+        window.simpanProfilSiswa = async function() {
+            if(!activeStudentEditing) return;
+            const nama = activeStudentEditing;
+            const orgs = getActiveOrgs();
+            
+            const isOsis = document.getElementById('cbOrgOsis').checked;
+            const isMpk = document.getElementById('cbOrgMpk').checked;
+            const isDuta = document.getElementById('cbOrgDuta').checked;
+            const targetKelas = document.getElementById('selectPindahKelas').value;
+            
+            // Handle Org changes
+            if(isOsis && !orgs.OSIS.includes(nama)) orgs.OSIS.push(nama); else if(!isOsis) orgs.OSIS = orgs.OSIS.filter(n => n !== nama);
+            if(isMpk && !orgs.MPK.includes(nama)) orgs.MPK.push(nama); else if(!isMpk) orgs.MPK = orgs.MPK.filter(n => n !== nama);
+            if(isDuta && !orgs.DUTA.includes(nama)) orgs.DUTA.push(nama); else if(!isDuta) orgs.DUTA = orgs.DUTA.filter(n => n !== nama);
+
+            // Handle Pindah Kelas INDIVIDU
+            let moved = false;
+            if(targetKelas !== activeClass) {
+                if(getActiveClasses()[targetKelas].includes(nama)) {
+                    showToast("Siswa dengan nama yang sama sudah ada di kelas tujuan!", true);
+                    return;
+                }
+
+                masterData.years[currentViewYear].classes[activeClass] = getActiveClasses()[activeClass].filter(s => s !== nama);
+                masterData.years[currentViewYear].classes[targetKelas].push(nama);
+
+                await migrateStudentData(nama, activeClass, targetKelas);
+                moved = true;
+            }
+
+            try { 
+                await saveToCloud(); 
+                
+                if (moved) {
+                    await refreshProfilesCache();
+                    showToast(`${nama} sukses dipindahkan ke kelas ${targetKelas}!`);
+                } else {
+                    showToast("Profil organisasi disimpan!"); 
+                }
+                
+                closeModal('editSiswaModal'); 
+                renderClassList(); 
+                document.getElementById('activeClassCount').innerText = `Total: ${getActiveClasses()[activeClass].length} Siswa`; 
+                renderStudentList(); 
+            } catch(e) { showToast("Gagal menyimpan.", true); }
+        }
+
+        window.hapusSiswa = async function() {
+            if(!activeClass || !activeStudentEditing) return;
+            const nama = activeStudentEditing;
+            if(!confirm(`Yakin ingin menghapus ${nama} dari kelas ${activeClass} tahun ini?`)) return;
+
+            masterData.years[currentViewYear].classes[activeClass] = getActiveClasses()[activeClass].filter(s => s !== nama);
+            removeStudentFromOrgs(nama);
+
+            try { await saveToCloud(); showToast(`${nama} dihapus.`); closeModal('editSiswaModal'); renderClassList(); document.getElementById('activeClassCount').innerText = `Total: ${getActiveClasses()[activeClass].length} Siswa`; renderStudentList(); } catch(e) {}
+        }
+
+        function removeStudentFromOrgs(nama) {
+            const orgs = getActiveOrgs();
+            if(orgs.OSIS) orgs.OSIS = orgs.OSIS.filter(n => n !== nama);
+            if(orgs.MPK) orgs.MPK = orgs.MPK.filter(n => n !== nama);
+            if(orgs.DUTA) orgs.DUTA = orgs.DUTA.filter(n => n !== nama);
+        }
+
+        // ================= UTILITIES =================
+        window.openModal = function(id) { document.getElementById(id).classList.add('active'); }
+        window.closeModal = function(id) { 
+            document.getElementById(id).classList.remove('active'); 
+            if(id === 'editSiswaModal') activeStudentEditing = null;
+        }
+        
+        function showToast(msg, isErr=false) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.style.background = isErr ? 'var(--danger)' : 'var(--success)';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('mobileToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => { 
+            if(confirm("Keluar dari sistem?")) signOut(auth).then(()=>window.location.href="../login.html"); 
+        });
+
+    </script>
+</body>
+</html>
