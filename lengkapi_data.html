@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lengkapi Data Pribadi | Aether OSIS</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --space-dark: #000000; --space-light: #160D2B;
+            --cosmic-purple: #9D4EDD; --cosmic-pink: #C77DFF;
+            --star-gold: #F48C06; --text-main: #F8FAFC;
+            --text-muted: #94A3B8; --glass-bg: rgba(22, 13, 43, 0.7);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--space-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(244, 140, 6, 0.1) 0%, transparent 40%);
+            padding: 20px;
+        }
+
+        .form-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Dekorasi Glow */
+        .form-container::before {
+            content: ''; position: absolute; top: -50px; left: -50px;
+            width: 150px; height: 150px; background: rgba(157, 78, 221, 0.4);
+            filter: blur(60px); z-index: -1;
+        }
+
+        .header-section { text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+        .logo { font-family: 'Quicksand', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px; }
+        .logo span { color: var(--star-gold); }
+        .subtitle { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+
+        .student-info-box {
+            background: rgba(244, 140, 6, 0.1);
+            border: 1px dashed var(--star-gold);
+            padding: 15px; border-radius: 12px;
+            margin-bottom: 25px; text-align: center;
+        }
+        .student-info-box h3 { font-family: 'Quicksand', sans-serif; color: var(--star-gold); font-size: 1.3rem; margin-bottom: 5px; }
+        .student-info-box p { font-size: 0.9rem; color: var(--text-main); margin: 0; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full { grid-column: 1 / -1; }
+        
+        .form-group label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        .form-control {
+            width: 100%; padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px; color: var(--text-main);
+            font-family: 'Poppins', sans-serif; font-size: 0.95rem;
+            transition: var(--transition); outline: none;
+        }
+        .form-control:focus { border-color: var(--cosmic-purple); background: rgba(157, 78, 221, 0.05); }
+        select.form-control option { background-color: var(--space-dark); color: var(--text-main); }
+        textarea.form-control { min-height: 80px; resize: vertical; }
+
+        .btn-submit {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, var(--cosmic-purple), #7B2CBF);
+            color: white; border: none; border-radius: 12px;
+            font-family: 'Poppins', sans-serif; font-size: 1.05rem; font-weight: 600;
+            cursor: pointer; transition: var(--transition);
+            margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(157, 78, 221, 0.4); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .state-msg { text-align: center; padding: 40px 0; }
+        .state-msg i { font-size: 3rem; margin-bottom: 15px; }
+        .state-msg.error { color: #fca5a5; }
+        .state-msg.success { color: #6ee7b7; }
+        .state-msg p { color: var(--text-muted); font-size: 1rem; margin-top: 10px; line-height: 1.6;}
+        
+        .spinner { color: var(--star-gold); animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-container { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <div class="header-section">
+            <div class="logo">AETHER<span>.</span></div>
+            <div class="subtitle">Sistem Informasi Pendataan Siswa<br>OSIS SMA Cinta Kasih Tzu Chi</div>
+        </div>
+
+        <!-- LOADING STATE -->
+        <div id="loadingState" class="state-msg">
+            <i class="fas fa-circle-notch spinner"></i>
+            <h3 style="color:var(--text-main);">Memeriksa Validitas Link...</h3>
+            <p>Mohon tunggu sebentar.</p>
+        </div>
+
+        <!-- ERROR STATE -->
+        <div id="errorState" class="state-msg error" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3 style="color:var(--text-main);">Link Tidak Valid</h3>
+            <p id="errorText">Link undangan ini tidak ditemukan atau data Anda sudah pernah dilengkapi sebelumnya.</p>
+        </div>
+
+        <!-- SUCCESS STATE -->
+        <div id="successState" class="state-msg success" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <h3 style="color:var(--text-main);">Terima Kasih!</h3>
+            <p>Data pribadi Anda dan Akun Website telah berhasil dibuat.</p>
+            <p style="font-size: 0.85rem; margin-top: 20px;">Anda sudah bisa menutup halaman ini.</p>
+        </div>
+
+        <!-- FORM STATE -->
+        <div id="formState" style="display: none;">
+            <div class="student-info-box">
+                <p>Mendata Profil:</p>
+                <h3 id="displayNama">Memuat Nama...</h3>
+                <p>Kelas: <span id="displayKelas" style="font-weight: bold; color:var(--cosmic-pink);">...</span></p>
+            </div>
+
+            <form id="dataForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tempat Lahir</label>
+                        <input type="text" id="inputTempatLahir" class="form-control" placeholder="Kota lahir..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tanggal Lahir</label>
+                        <input type="date" id="inputTanggalLahir" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jenis Kelamin</label>
+                        <select id="inputGender" class="form-control" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Agama</label>
+                        <select id="inputAgama" class="form-control" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Buddha">Buddha</option>
+                            <option value="Islam">Islam</option>
+                            <option value="Kristen">Kristen</option>
+                            <option value="Katolik">Katolik</option>
+                            <option value="Hindu">Hindu</option>
+                            <option value="Konghucu">Konghucu</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Nomor HP / WhatsApp Aktif</label>
+                        <input type="tel" id="inputHp" class="form-control" placeholder="Contoh: 081234567890" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Alamat Rumah Lengkap</label>
+                        <textarea id="inputAlamat" class="form-control" placeholder="Nama Jalan, RT/RW, Kelurahan, Kecamatan..." required></textarea>
+                    </div>
+
+                    <!-- BAGIAN PEMBUATAN AKUN -->
+                    <div class="form-group full" style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                        <h4 style="color: var(--star-gold); font-family: 'Quicksand', sans-serif; margin-bottom: 5px; font-size: 1.1rem;"><i class="fas fa-user-circle"></i> Buat Akun Website</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Email dan password ini akan digunakan untuk masuk ke website Aether OSIS.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Alamat Email</label>
+                        <input type="email" id="inputEmail" class="form-control" placeholder="Email aktif Anda..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Buat Password</label>
+                        <input type="password" id="inputPassword" class="form-control" placeholder="Minimal 6 karakter" required minlength="6">
+                    </div>
+                </div>
+                
+                <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-bottom: 15px;">
+                    <i class="fas fa-shield-alt"></i> Data dipakai untuk keperluan OSIS, Password dienkripsi tidak seorangpun tahu selain kamu.
+                </p>
+
+                <button type="submit" class="btn-submit" id="btnSubmit">
+                    <i class="fas fa-save"></i> Simpan Data & Buat Akun
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIREBASE MODULES -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjyKJQbGcim9esLh_bAZnxpM4jtPI5sUU",
+            authDomain: "osmaaether.firebaseapp.com",
+            projectId: "osmaaether",
+            storageBucket: "osmaaether.firebasestorage.app",
+            messagingSenderId: "943721519971",
+            appId: "1:943721519971:web:5f44039952b9541d9a5156"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // UI Elements
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const successState = document.getElementById('successState');
+        const formState = document.getElementById('formState');
+        const dataForm = document.getElementById('dataForm');
+        const btnSubmit = document.getElementById('btnSubmit');
+
+        let inviteData = null;
+        let tokenParams = null;
+
+        // 1. Cek Token di URL
+        window.onload = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            tokenParams = urlParams.get('token');
+
+            if (!tokenParams) {
+                showError("Akses ditolak. Tidak ada token link.");
+                return;
+            }
+
+            try {
+                // Cari data token undangan
+                const inviteRef = doc(db, "data_invites", tokenParams);
+                const inviteSnap = await getDoc(inviteRef);
+
+                if (inviteSnap.exists()) {
+                    inviteData = inviteSnap.data();
+                    
+                    // Tampilkan Data Dasar ke UI
+                    document.getElementById('displayNama').innerText = inviteData.nama;
+                    document.getElementById('displayKelas').innerText = inviteData.kelas;
+                    
+                    loadingState.style.display = 'none';
+                    formState.style.display = 'block';
+                } else {
+                    showError("Link kadaluarsa atau data Anda sudah pernah dilengkapi sebelumnya.");
+                }
+            } catch (err) {
+                showError("Terjadi kesalahan jaringan.");
+            }
+        };
+
+        // 2. Submit Data & Buat Akun
+        dataForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<i class="fas fa-circle-notch spinner"></i> Menyimpan & Membuat Akun...`;
+
+            const email = document.getElementById('inputEmail').value.trim().toLowerCase();
+            const password = document.getElementById('inputPassword').value;
+
+            // Kumpulkan data form
+            const studentData = {
+                nama: inviteData.nama,
+                kelas: inviteData.kelas,
+                email: email,
+                tempat_lahir: document.getElementById('inputTempatLahir').value,
+                tanggal_lahir: document.getElementById('inputTanggalLahir').value,
+                jenis_kelamin: document.getElementById('inputGender').value,
+                agama: document.getElementById('inputAgama').value,
+                no_hp: document.getElementById('inputHp').value,
+                alamat: document.getElementById('inputAlamat').value,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                // A. Buat Akun Firebase Auth Terlebih Dahulu
+                await createUserWithEmailAndPassword(auth, email, password);
+
+                // B. Simpan Profil ke Koleksi Khusus
+                // ID dokumen menggunakan profileId yang digenerate oleh Admin (Nama_Kelas)
+                await setDoc(doc(db, "student_profiles", inviteData.profileId), studentData);
+
+                // C. Hapus Token agar link hangus (1x Pakai)
+                await deleteDoc(doc(db, "data_invites", tokenParams));
+
+                // Sukses
+                formState.style.display = 'none';
+                successState.style.display = 'block';
+
+            } catch (error) {
+                let errorMsg = "Gagal menyimpan data. Pastikan koneksi internet stabil.";
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMsg = "Alamat email ini sudah terdaftar. Silakan gunakan email lain.";
+                } else if (error.code === 'auth/weak-password') {
+                    errorMsg = "Password terlalu lemah. Harus minimal 6 karakter.";
+                }
+                
+                alert(errorMsg);
+                console.error(error);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fas fa-save"></i> Simpan Data & Buat Akun`;
+            }
+        });
+
+        function showError(msg) {
+            loadingState.style.display = 'none';
+            formState.style.display = 'none';
+            errorState.style.display = 'block';
+            document.getElementById('errorText').innerText = msg;
+        }
+    </script>
+</body>
+</html>

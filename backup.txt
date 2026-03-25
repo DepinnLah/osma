@@ -1,0 +1,168 @@
+
+    <!-- STRUKTUR (KIRI-KANAN COMPACT) -->
+    <div id="struktur" style="position: absolute; margin-top: -100px;"></div>
+    <section class="main-section">
+        <h2 class="section-title reveal">Formasi Bintang Aether</h2>
+        <p class="section-subtitle reveal">Mengenal susunan kabinet dan wajah-wajah penggerak OSIS SMA Cinta Kasih Tzu Chi.</p>
+
+        <!-- QUICK SCROLL -->
+        <div class="quick-scroll-wrapper reveal">
+            <a href="#div-bph" class="quick-scroll-pill">Badan Pengurus Harian</a>
+            <a href="#div-perancangan" class="quick-scroll-pill">Perancangan</a>
+            <a href="#div-kesenian" class="quick-scroll-pill">Kesenian</a>
+            <a href="#div-humas" class="quick-scroll-pill">Hubungan Masyarakat</a>
+            <a href="#div-kewirausahaan" class="quick-scroll-pill">Kewirausahaan</a>
+        </div>
+
+        <!-- BPH -->
+        <h3 id="div-bph" class="division-title reveal">Badan Pengurus Harian</h3>
+        <div class="tree-wrapper">
+            <!-- Ketua & Wakil Berdampingan -->
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/cintamaya.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Cintamaya+Panna&background=2A1B38&color=F48C06'"><div class="team-name">Cintamaya Panna G.</div><div class="team-role">Ketua OSIS</div></div>
+                <div class="team-card"><img src="assets/pengurus/kisyha.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Kisyha+Ryviera&background=2A1B38&color=F48C06'"><div class="team-name">Kisyha Ryviera</div><div class="team-role">Wakil Ketua OSIS</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <!-- Sekretaris & Bendahara -->
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/metta.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Metta+Suciyanto&background=1A1025&color=C77DFF'"><div class="team-name">Metta Suciyanto</div><div class="team-role">Sekretaris 1</div></div>
+                <div class="team-card"><img src="assets/pengurus/abigail.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Abigail+Adeline&background=1A1025&color=C77DFF'"><div class="team-name">Abigail Adeline A.</div><div class="team-role">Sekretaris 2</div></div>
+                <div class="team-card"><img src="assets/pengurus/sheren.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Sheren+Vhiya&background=1A1025&color=9D4EDD'"><div class="team-name">Sheren Vhiya</div><div class="team-role">Bendahara 1</div></div>
+                <div class="team-card"><img src="assets/pengurus/devin.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Devin+Tjahjaindra&background=1A1025&color=9D4EDD'"><div class="team-name">Devin Tjahjaindra</div><div class="team-role">Bendahara 2</div></div>
+            </div>
+        </div>
+
+        <!-- PERANCANGAN -->
+        <h3 id="div-perancangan" class="division-title reveal">Divisi Perancangan</h3>
+        <div class="tree-wrapper">
+            <!-- Ketua Divisi & Sekretaris Divisi Berdampingan -->
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/collin.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Collin+Mikael&background=160D2B&color=F8FAFC'"><div class="team-name">Collin Mikael S.</div><div class="team-role">Ketua Divisi</div></div>
+                <div class="team-card"><img src="assets/pengurus/jesselyn.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Jesselyn+Khe&background=160D2B&color=F8FAFC'"><div class="team-name">Jesselyn Khe</div><div class="team-role">Sekretaris Divisi</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <!-- Anggota Divisi -->
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/gerick.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Gerick+Julius&background=160D2B&color=F8FAFC'"><div class="team-name">Gerick Julius K.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/angela.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Lim+Angela&background=160D2B&color=F8FAFC'"><div class="team-name">Lim Angela F.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/vanessa.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Vanessa+Ivana&background=160D2B&color=F8FAFC'"><div class="team-name">Vanessa Ivana</div><div class="team-role">Anggota</div></div>
+            </div>
+        </div>
+
+        <!-- KESENIAN -->
+        <h3 id="div-kesenian" class="division-title reveal">Divisi Kesenian</h3>
+        <div class="tree-wrapper">
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/cherrlyn.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Cherrlyn+Vianca&background=160D2B&color=F8FAFC'"><div class="team-name">Cherrlyn Vianca</div><div class="team-role">Ketua Divisi</div></div>
+                <div class="team-card"><img src="assets/pengurus/angelica.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Angelica+Jasmine&background=160D2B&color=F8FAFC'"><div class="team-name">Angelica Jasmine</div><div class="team-role">Sekretaris Divisi</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/felica.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Felica+Frances&background=160D2B&color=F8FAFC'"><div class="team-name">Felica Frances K.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/maria.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Maria+Giovanna&background=160D2B&color=F8FAFC'"><div class="team-name">Maria Giovanna M.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/nikita.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Nikita+Angelica&background=160D2B&color=F8FAFC'"><div class="team-name">Nikita Angelica</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/sharice.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Sharice+Keenesha&background=160D2B&color=F8FAFC'"><div class="team-name">Sharice Keenesha</div><div class="team-role">Anggota</div></div>
+            </div>
+        </div>
+
+        <!-- HUMAS -->
+        <h3 id="div-humas" class="division-title reveal">Hubungan Masyarakat</h3>
+        <div class="tree-wrapper">
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/aurelia.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Aurelia+Putri&background=160D2B&color=F8FAFC'"><div class="team-name">Aurelia Putri L.</div><div class="team-role">Ketua Divisi</div></div>
+                <div class="team-card"><img src="assets/pengurus/sofie.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Sofie+Vanya&background=160D2B&color=F8FAFC'"><div class="team-name">Sofie Vanya Y.</div><div class="team-role">Sekretaris Divisi</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/albert.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Albert+Marshal&background=160D2B&color=F8FAFC'"><div class="team-name">Albert Marshal W.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/carissa.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Carissa+Putri&background=160D2B&color=F8FAFC'"><div class="team-name">Carissa Putri C.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/nyoman.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=I+Nyoman+Gusti&background=160D2B&color=F8FAFC'"><div class="team-name">I Nyoman Gusti R.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/lady.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Lady+Patricia&background=160D2B&color=F8FAFC'"><div class="team-name">Lady Patricia</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/steven.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Steven+Angjaya&background=160D2B&color=F8FAFC'"><div class="team-name">Steven Angjaya</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/jonathan.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Jonathan+Emmanuel&background=160D2B&color=F8FAFC'"><div class="team-name">Jonathan Emmanuel</div><div class="team-role">Anggota</div></div>
+            </div>
+        </div>
+
+        <!-- KEWIRAUSAHAAN -->
+        <h3 id="div-kewirausahaan" class="division-title reveal">Divisi Kewirausahaan</h3>
+        <div class="tree-wrapper">
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/sherina.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Sherina+Verlene&background=160D2B&color=F8FAFC'"><div class="team-name">Sherina Verlene</div><div class="team-role">Ketua Divisi</div></div>
+                <div class="team-card"><img src="assets/pengurus/daniyah.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Daniyah+Rohadatul&background=160D2B&color=F8FAFC'"><div class="team-name">Daniyah Rohadatul</div><div class="team-role">Sekretaris Divisi</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/carolina.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Carolina+Saphira&background=160D2B&color=F8FAFC'"><div class="team-name">Carolina Saphira</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/celine.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Celine+Nicoletta&background=160D2B&color=F8FAFC'"><div class="team-name">Celine Nicoletta A.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/harryson.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Harryson+Layadi&background=160D2B&color=F8FAFC'"><div class="team-name">Harryson Layadi</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/jeremico.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Jeremico+Benedictus&background=160D2B&color=F8FAFC'"><div class="team-name">Jeremico Benedictus</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/marvel.jpg" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Marvel+Satria&background=160D2B&color=F8FAFC'"><div class="team-name">Marvel Satria P.</div><div class="team-role">Anggota</div></div>
+            </div>
+        </div>
+
+    </section>
+
+
+
+        <!-- HERO TEXT -->
+    <section class="hero-text-section reveal">
+        <div class="hero-badge" id="authBadge">✨ Kabinet OSIS SMA Cinta Kasih Tzu Chi</div>
+        <h1>Menyinari Layaknya <span>Bintang Aether.</span></h1>
+        <p>Berdedikasi, berinovasi, dan melangkah bersama mewujudkan lingkungan sekolah yang harmonis dalam balutan semesta kreativitas. Selamat datang di portal resmi Aether!</p>
+    </section>
+
+    <!-- TENTANG KAMI (VISI MISI) -->
+    <div id="tentang" style="position: absolute; margin-top: -100px;"></div>
+    <section class="main-section">
+        <h2 class="section-title reveal">Arah & Tujuan Kami</h2>
+        <p class="section-subtitle reveal">Mengenal lebih dekat visi dan misi yang menjadi kompas pergerakan Kabinet Aether.</p>
+        <div class="vm-container">
+            <div class="vm-card reveal">
+                <div class="vm-title"><i class="fas fa-eye"></i> Visi</div>
+                <p>Menjadikan OSIS SMA Cinta Kasih Tzu Chi sebagai organisasi yang inklusif, kreatif, inovatif, dan komunikatif dengan budaya kolaboratif yang mendorong prestasi, sekaligus menjadi wadah pengembangan diri di bidang akademik maupun non-akademik, serta pembentukan karakter siswa.</p>
+            </div>
+            <div class="vm-card reveal">
+                <div class="vm-title"><i class="fas fa-bullseye"></i> Misi</div>
+                <ul>
+                    <li>Mengembangkan program kerja yang bermanfaat, inovatif dan kreatif sesuai kebutuhan serta minat siswa/i.</li>
+                    <li>Mengoptimalkan komunikasi antara pengurus OSIS, siswa/MPK, dan guru.</li>
+                    <li>Menjadi wadah bagi siswa/i untuk belajar bekerja sama dengan berbagai pihak.</li>
+                    <li>Menciptakan lingkungan yang inklusif, nyaman, dan mendukung setiap siswa/i.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROKER (TETAP SEMUA) -->
+    <div id="proker" style="position: absolute; margin-top: -100px;"></div>
+    <section class="main-section">
+        <h2 class="section-title reveal">Program Bintang</h2>
+        <p class="section-subtitle reveal">Inisiatif dan kegiatan yang kami rancang untuk memajukan potensi seluruh siswa SMA Cinta Kasih Tzu Chi.</p>
+        <div class="proker-grid">
+            <div class="proker-card reveal" onclick="openModal('Lumina', 'Program Unggulan', 'Festival akhir semester yang memadukan olahraga, seni, dan gelar karya untuk menumbuhkan kreativitas, sportivitas, serta kebersamaan antar siswa. Acara ini juga mengundang berbagai penampilan menarik untuk merayakan hasil belajar kita.', 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80', '#')">
+                <div class="proker-badge badge-unggulan">Program Unggulan</div>
+                <h3 class="proker-title">Lumina</h3>
+                <p class="proker-desc">Festival akhir semester yang memadukan olahraga, seni, dan gelar karya untuk menumbuhkan kreativitas, sportivitas, serta kebersamaan.</p>
+            </div>
+            <div class="proker-card reveal" onclick="openModal('Online Voices', 'Program Rutin', 'Menggunakan media sosial untuk menampung aspirasi dan kritik siswa/i agar mereka merasa didengar dan mempererat hubungan dengan OSIS. Ayo sampaikan ide-idemu melalui platform resmi kami!', 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80', 'https://instagram.com/osissmacktc')">
+                <div class="proker-badge badge-rutin">Program Rutin</div>
+                <h3 class="proker-title">Online Voices</h3>
+                <p class="proker-desc">Media penyampai aspirasi secara digital agar suara setiap siswa dapat didengar dan ditindaklanjuti.</p>
+            </div>
+            <div class="proker-card reveal" onclick="openModal('OSIS for a day', 'Side Program', 'Kesempatan emas bagi siswa/i di luar OSIS untuk menjadi panitia event tertentu dengan bimbingan OSIS, agar dapat belajar, menambah pengalaman, dan berkembang bersama secara langsung.', 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80', '#')">
+                <div class="proker-badge badge-side">Side Program</div>
+                <h3 class="proker-title">OSIS for a day</h3>
+                <p class="proker-desc">Kesempatan bagi siswa/i di luar OSIS untuk menjadi panitia event tertentu dengan bimbingan OSIS agar dapat belajar dan berkembang bersama.</p>
+            </div>
+            <div class="proker-card reveal" onclick="openModal('Scavenger hunt', 'Side Program', 'Lomba seru mencari barang tersembunyi dengan berbagai rintangan dan petunjuk teka-teki misterius untuk menumbuhkan kekeluargaan dan kekompakan tiap kelas.', 'https://images.unsplash.com/photo-1533560904424-a0c61dc306fc?auto=format&fit=crop&w=800&q=80', '#')">
+                <div class="proker-badge badge-side">Side Program</div>
+                <h3 class="proker-title">Scavenger hunt</h3>
+                <p class="proker-desc">Lomba mencari barang tersembunyi dengan rintangan dan petunjuk untuk menumbuhkan kekeluargaan dan kekompakan tiap kelas.</p>
+            </div>
+            <div class="proker-card reveal" onclick="openModal('SOS (Showdown Of Students)', 'Side Program', 'Perlombaan akademik sengit antar kelas yang mengumpulkan siswa/i terbaik dari yang terbaik untuk memperebutkan gelar juara umum SMA Cinta Kasih Tzu Chi.', 'https://images.unsplash.com/photo-1546410531-ea4cea477149?auto=format&fit=crop&w=800&q=80', '#')">
+                <div class="proker-badge badge-side">Side Program</div>
+                <h3 class="proker-title">SOS (Showdown Of Students)</h3>
+                <p class="proker-desc">Perlombaan akademik antar kelas yang mengumpulkan siswa/i terbaik dari yang terbaik untuk memperebutkan gelar juara umum.</p>
+            </div>
+        </div>
+    </section>

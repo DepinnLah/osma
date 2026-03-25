@@ -1,1 +1,1278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether | OSIS SMA Cinta Kasih Tzu Chi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --space-dark: #090514; --space-light: #160D2B;
+            --cosmic-purple: #9D4EDD; --cosmic-pink: #C77DFF;
+            --star-gold: #F48C06; --star-yellow: #FFBA08;
+            --text-main: #F8FAFC; --text-muted: #94A3B8;
+            --glass-bg: rgba(22, 13, 43, 0.65); --glass-border: rgba(157, 78, 221, 0.3);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Reset & Box Sizing Setup */
+        *, *::before, *::after { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif; 
+            color: var(--text-main); 
+            background-color: var(--space-dark);
+            background-image: 
+                linear-gradient(rgba(9, 5, 20, 0.85), rgba(9, 5, 20, 0.95)), 
+                url('https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        body.no-scroll {
+            overflow: hidden !important;
+            touch-action: none; 
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--space-dark); }
+        ::-webkit-scrollbar-thumb:vertical { background: linear-gradient(to bottom, var(--cosmic-purple), var(--star-gold)); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:vertical:hover { background: linear-gradient(to bottom, var(--cosmic-pink), var(--star-yellow)); }
+        ::-webkit-scrollbar-thumb:horizontal { background: linear-gradient(to right, var(--cosmic-purple), var(--star-gold)); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:horizontal:hover { background: linear-gradient(to right, var(--cosmic-pink), var(--star-yellow)); }
+
+        #cosmic-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+        }
+
+        /* =========================================
+           SATU NAVBAR PINTAR (SMART NAVBAR)
+           ========================================= */
+        nav { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 5%; background: rgba(9, 5, 20, 0.5); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 3005; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+        
+        nav.nav-scrolled {
+            background: rgba(15, 8, 30, 0.98); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+        }
+
+        nav.nav-hidden { 
+            transform: translateY(-100%); 
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 10px; z-index: 10; position: relative; text-decoration: none; }
+        .logo-img { height: 35px; filter: drop-shadow(0 0 8px rgba(244, 140, 6, 0.6)); transition: var(--transition); }
+        .logo-img.osis { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4)); }
+        
+        .logo-container:hover .logo-img { transform: rotate(-10deg) scale(1.1); }
+        .logo-container:hover .logo-img.osis { transform: rotate(10deg) scale(1.1); }
+
+        .logo-text { font-family: 'Quicksand', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--text-main); letter-spacing: 1.5px; text-transform: uppercase; margin-left: 5px; }
+        .logo-text span { color: var(--star-gold); text-shadow: 0 0 10px rgba(244, 140, 6, 0.5); }
+        
+        .nav-links { display: flex; list-style: none; gap: 30px; align-items: center; margin-right: 10px; z-index: 3004;}
+        
+        .nav-links > li > a { 
+            text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.95rem; transition: var(--transition); padding: 5px 0; position: relative;
+        }
+        .nav-links > li > a::after {
+            content: ''; position: absolute; bottom: -2px; left: 50%; width: 0; height: 2px; background: var(--cosmic-pink); transition: var(--transition); transform: translateX(-50%); border-radius: 2px;
+        }
+        .nav-links > li > a:hover { color: var(--cosmic-pink); text-shadow: 0 0 8px rgba(199, 125, 255, 0.5); }
+        .nav-links > li > a:hover::after { width: 100%; box-shadow: 0 0 10px var(--cosmic-pink); }
+        
+        /* Dropdown Menu Desktop */
+        .dropdown { position: relative; }
+        .dropdown::after { content: ''; position: absolute; top: 100%; right: 0; width: 220px; height: 40px; z-index: 1; }
+        
+        .dropdown-content { 
+            visibility: hidden; position: absolute; right: 0; top: 100%; 
+            background-color: rgba(15, 8, 30, 0.95); min-width: 220px; border-radius: 20px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 15px rgba(157, 78, 221, 0.2); 
+            border: 1px solid var(--glass-border); backdrop-filter: blur(15px); 
+            z-index: 3010; padding: 15px 0; overflow: hidden; margin-top: 15px; 
+            opacity: 0; transform: translateY(10px); transition: all 0.3s ease;
+        }
+        .dropdown-content::before { 
+            content: ''; position: absolute; top: -6px; right: 30px; width: 12px; height: 12px; background: rgba(15, 8, 30, 0.95); border-top: 1px solid var(--glass-border); border-left: 1px solid var(--glass-border); transform: rotate(45deg); 
+        } 
+        .dropdown-content a { color: var(--text-main); padding: 12px 25px; text-decoration: none; display: block; font-size: 0.9rem; transition: var(--transition); position: relative; z-index: 3; font-weight: 500;}
+        .dropdown-content a:hover { background-color: rgba(157, 78, 221, 0.15); color: var(--star-gold); padding-left: 32px; }
+        
+        .dropdown:hover .dropdown-content { visibility: visible; opacity: 1; transform: translateY(0); }
+        .login-highlight { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 5px; color: var(--cosmic-pink) !important; font-weight: 700 !important; }
+
+        .btn-primary { background: linear-gradient(135deg, var(--star-gold), #DC2F02); color: white !important; padding: 12px 30px; border-radius: 50px; font-weight: 600; box-shadow: 0 4px 15px rgba(244, 140, 6, 0.3); transition: var(--transition); border: none; text-decoration: none; display: inline-block; cursor: pointer; }
+        .btn-primary:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 20px rgba(244, 140, 6, 0.6); }
+        
+        .menu-toggle { display: none; }
+
+        /* Layar Gelap (Overlay) untuk Menu Mobile - Diturunkan di bawah Navbar */
+        .mobile-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            z-index: 2999; opacity: 0; visibility: hidden; transition: var(--transition);
+        }
+        .mobile-overlay.active { opacity: 1; visibility: visible; }
+
+        /* Carousel Top Section */
+        .top-carousel-section { padding: 100px 5% 20px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+        .carousel-container { position: relative; width: 100%; border-radius: 25px; overflow: hidden; border: 1px solid var(--glass-border); box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        .carousel-inner { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); height: 500px; }
+        .carousel-slide { min-width: 100%; position: relative; }
+        .carousel-slide img { width: 100%; height: 100%; object-fit: cover; }
+        .carousel-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 80px 50px 50px; background: linear-gradient(transparent, #090514 95%); color: white; display: flex; flex-direction: column; justify-content: flex-end;}
+        .carousel-title { font-size: 2.5rem; font-family: 'Quicksand', sans-serif; color: var(--star-gold); margin-bottom: 10px; font-weight: 800; text-shadow: 0 4px 15px rgba(0,0,0,0.8); line-height: 1.2; }
+        .carousel-desc { font-size: 1.05rem; color: var(--text-main); margin-bottom: 25px; line-height: 1.6; max-width: 700px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+        .carousel-btn-link { display: inline-block; background: rgba(157, 78, 221, 0.4); color: white; padding: 12px 28px; border-radius: 50px; text-decoration: none; border: 1px solid var(--cosmic-pink); font-size: 0.95rem; font-weight: 600; transition: var(--transition); cursor: pointer; backdrop-filter: blur(5px); align-self: flex-start; }
+        .carousel-btn-link:hover { background: var(--cosmic-purple); box-shadow: 0 0 20px var(--cosmic-purple); transform: translateY(-2px); }
+        
+        .carousel-control { position: absolute; top: 50%; transform: translateY(-50%); background: var(--glass-bg); color: white; border: 1px solid var(--glass-border); width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: var(--transition); z-index: 10; backdrop-filter: blur(5px); }
+        .carousel-control:hover { background: var(--star-gold); color: #090514; border-color: var(--star-gold); transform: translateY(-50%) scale(1.1); }
+        .carousel-prev { left: 20px; } .carousel-next { right: 20px; }
+        
+        .carousel-indicators { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; z-index: 10; }
+        .indicator { width: 10px; height: 10px; border-radius: 50px; background: rgba(255,255,255,0.4); cursor: pointer; transition: var(--transition); }
+        .indicator.active { background: var(--star-gold); box-shadow: 0 0 10px var(--star-gold); width: 30px; } 
+
+        /* HERO TEXT */
+        .hero-text-section { text-align: center; padding: 60px 20px 80px; position: relative; z-index: 2; }
+        .hero-badge { background: rgba(157, 78, 221, 0.1); color: var(--cosmic-pink); padding: 8px 24px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; border: 1px solid var(--glass-border); backdrop-filter: blur(4px); box-shadow: 0 0 15px rgba(157, 78, 221, 0.2); }
+        .hero-text-section h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 20px; font-family: 'Quicksand', sans-serif; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .hero-text-section h1 span { background: linear-gradient(to right, var(--cosmic-pink), var(--star-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 8px rgba(244, 140, 6, 0.3)); }
+        .hero-text-section p { font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; max-width: 650px; margin: 0 auto; }
+
+        /* SECTIONS GENERAL */
+        .main-section { padding: 80px 5%; position: relative; z-index: 3; }
+        .section-title { text-align: center; font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px; font-family: 'Quicksand', sans-serif; text-shadow: 0 0 15px rgba(157, 78, 221, 0.5); }
+        .section-subtitle { text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto 60px; font-size: 1rem; }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        
+
+        /* LOADING & GRID - Diperbaiki menjadi sangat simetris absolut */
+        .horizontal-grid { 
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 25px; max-width: 1200px; margin: 0 auto; min-height: 200px; position: relative;
+        }
+        .horizontal-grid > * { flex: 1 1 300px; max-width: 350px; }
+        
+        .loader-spinner { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; justify-content: center; align-items: center; z-index: 10;
+        }
+        .loader-spinner::after { content: ""; width: 50px; height: 50px; border: 4px solid var(--glass-border); border-top-color: var(--star-gold); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 15px rgba(244, 140, 6, 0.4); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-placeholder { 
+            flex: 1 1 100%; text-align: center; padding: 60px 20px; background: var(--glass-bg); border-radius: 20px; border: 1px dashed var(--glass-border); color: var(--text-muted); margin: 0 auto 20px; transition: var(--transition); max-width: 800px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;
+        }
+
+        .see-more-wrapper { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-top: 40px; }
+        .see-more-btn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--star-gold); color: var(--star-gold) !important; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-size: 0.95rem; font-weight: 600; transition: var(--transition); backdrop-filter: blur(5px); }
+        .see-more-btn:hover { background: var(--star-gold); color: var(--space-dark) !important; transform: translateY(-3px); box-shadow: 0 5px 20px rgba(244, 140, 6, 0.4); }
+        .see-more-btn.outline { background: rgba(22, 13, 43, 0.5); border-color: var(--glass-border); color: var(--text-muted) !important; }
+        .see-more-btn.outline:hover { background: rgba(157, 78, 221, 0.2); color: var(--text-main) !important; border-color: var(--cosmic-purple); box-shadow: 0 5px 20px rgba(157, 78, 221, 0.3); }
+
+        /* GALERI PROGRAM */
+        .gallery-item { position: relative; border-radius: 20px; overflow: hidden; height: 260px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--space-dark); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .gallery-slider { 
+            display: flex; width: 100%; height: 100%; z-index: 1;
+            overflow-x: auto; overflow-y: hidden !important; 
+            scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; align-items: center; 
+        }
+        .gallery-slider::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; } 
+        .gallery-slider img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: center; display: block; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .gallery-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(9,5,20,0.95) 0%, rgba(9,5,20,0.4) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; opacity: 0; transition: var(--transition); z-index: 2; pointer-events: none; }
+        
+        .gallery-item:hover .gallery-slider img { transform: scale(1.08); } 
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        
+        .gallery-overlay h3 { color: var(--star-gold); font-family: 'Quicksand', sans-serif; font-size: 1.3rem; margin-bottom: 5px; transform: translateY(20px); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 700; }
+        .gallery-overlay p { color: white; font-size: 0.85rem; transform: translateY(20px); transition: transform 0.4s ease; transition-delay: 0.1s; opacity: 0.9; }
+        .gallery-item:hover .gallery-overlay h3, .gallery-item:hover .gallery-overlay p { transform: translateY(0); }
+
+        /* YOUTUBE VIDEO SECTION */
+        .video-card { background: var(--glass-bg); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); transition: var(--transition); backdrop-filter: blur(10px); padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; }
+        .video-card:hover { transform: translateY(-10px); border-color: rgba(255, 0, 0, 0.7); box-shadow: 0 15px 40px rgba(255, 0, 0, 0.3); }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        /* FOOTER */
+        footer { padding: 60px 5% 20px; background: #05020a; border-top: 1px solid var(--glass-border); color: var(--text-muted); position: relative; z-index: 5; }
+        .footer-content { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px; margin-bottom: 40px; max-width: 1200px; margin-inline: auto; }
+        .footer-col { flex: 1; min-width: 250px; }
+        .footer-title { color: var(--text-main); font-family: 'Quicksand', sans-serif; font-size: 1.2rem; margin-bottom: 20px; font-weight: 700; }
+        .footer-text { font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .footer-text i { color: var(--star-gold); width: 20px; text-align: center; }
+        .footer-socials { display: flex; gap: 15px; }
+        .social-icon { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background: var(--glass-bg); color: var(--star-gold); text-decoration: none; transition: var(--transition); border: 1px solid var(--glass-border); font-size: 1.2rem; }
+        .social-icon:hover { background: var(--star-gold); color: var(--space-dark); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(244, 140, 6, 0.4); }
+        .footer-login-btn { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; transition: var(--transition); margin-top: 10px; font-weight: 500;}
+        .footer-login-btn:hover { background: rgba(157, 78, 221, 0.15); color: var(--cosmic-pink); border-color: var(--cosmic-purple); }
+        .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
+
+        /* MODAL POPUP */
+        .modal-overlay { 
+            position: fixed; inset: 0; width: 100%; height: 100%; 
+            background: rgba(5, 2, 10, 0.9); backdrop-filter: blur(10px); 
+            z-index: 9999; display: flex; align-items: center; justify-content: center; 
+            opacity: 0; visibility: hidden; transition: var(--transition); 
+            padding: 1rem; box-sizing: border-box; overflow: hidden; 
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .modal-content { 
+            position: relative; background: var(--space-light); border: 1px solid var(--glass-border); 
+            border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; 
+            display: flex; flex-direction: column; overflow: hidden; 
+            transform: translateY(30px) scale(0.95); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8); 
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        
+        .modal-body { padding: 25px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+        
+        .modal-img-container { width: 100%; height: 250px; display: none; flex-shrink: 0; }
+        .modal-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .close-modal { 
+            position: absolute; top: 12px; right: 12px; width: 35px; height: 35px; font-size: 1.5rem; 
+            color: white; background: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: var(--transition); z-index: 100; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); 
+        }
+        .close-modal:hover { background: var(--star-gold); color: var(--space-dark); border-color: var(--star-gold); }
+        
+        .modal-title { font-size: 1.8rem; color: var(--star-gold); font-family: 'Quicksand', sans-serif; font-weight: 700; margin-bottom: 10px; padding-right: 40px; } 
+        .modal-badge { background: rgba(157, 78, 221, 0.2); color: var(--cosmic-pink); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; margin-bottom: 20px; border: 1px solid var(--cosmic-purple); }
+        .modal-desc { color: var(--text-main); line-height: 1.8; margin-bottom: 25px; font-size: 0.95rem; }
+
+        .contact-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px 20px; border-radius: 12px; font-weight: 600; text-decoration: none; color: white !important; transition: var(--transition); border: 1px solid transparent; font-size: 1rem; }
+        .contact-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.4); filter: brightness(1.1); }
+        .contact-btn.wa { background: rgba(37, 211, 102, 0.2); border-color: #25D366; color: #25D366 !important; }
+        .contact-btn.wa:hover { background: #25D366; color: white !important; box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4); }
+        .contact-btn.email { background: rgba(234, 67, 53, 0.2); border-color: #EA4335; color: #EA4335 !important; }
+        .contact-btn.email:hover { background: #EA4335; color: white !important; box-shadow: 0 5px 20px rgba(234, 67, 53, 0.4); }
+        .contact-btn.lynk { background: rgba(157, 78, 221, 0.2); border-color: var(--cosmic-pink); color: var(--cosmic-pink) !important; }
+        .contact-btn.lynk:hover { background: var(--cosmic-purple); color: white !important; box-shadow: 0 5px 20px rgba(157, 78, 221, 0.4); }
+
+        .gallery-carousel-container { position: relative; width: 100%; height: 350px; overflow: hidden; background: var(--space-dark); flex-shrink: 0; }
+        .gallery-carousel-inner { display: flex; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; }
+        .gallery-slide { position: relative; min-width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; }
+        .gallery-slide img { width: 100%; height: 100%; object-fit: contain; } 
+        .slide-caption { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.9)); color: var(--text-main); padding: 50px 20px 40px; text-align: center; font-size: 0.95rem; font-family: 'Poppins', sans-serif; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+        #galleryIndicators { bottom: 12px; z-index: 10; }
+
+        /* =========================================
+           2. FIX RESPONSIVE NAVBAR DI HP & TABLET
+           ========================================= */
+        @media (max-width: 900px) {
+            nav { 
+                padding: 15px 20px;
+            } 
+            
+            /* Tombol Hamburger dengan Animasi Interaktif */
+            .menu-toggle { 
+                display: flex; align-items: center; justify-content: center;
+                width: 40px; height: 40px;
+                background: transparent; border: none; padding: 0; 
+                border-radius: 8px; font-size: 1.6rem; z-index: 3006; position: relative; 
+                color: var(--text-main); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .menu-toggle:hover { color: var(--star-gold); background: transparent; border-color: transparent;}
+            
+            /* Sidebar Menu Meluncur (Drawer) Diatas Logo */
+            .nav-links { 
+                position: fixed; top: 0; right: -100%; height: 100dvh; width: 280px; max-width: 80vw; 
+                background: #090514; border-left: 1px solid rgba(157, 78, 221, 0.3);
+                flex-direction: column; justify-content: flex-start; align-items: stretch; 
+                padding: 80px 20px 40px; gap: 0; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+                box-shadow: -10px 0 40px rgba(0,0,0,0.9); margin-right: 0; z-index: 3004;
+                overflow-y: auto; overflow-x: hidden;
+            }
+            .nav-links.active { right: 0; }
+            
+            /* Animasi Cascade/Staggered saat Drawer Terbuka */
+            .nav-links > li { 
+                width: 100%; padding: 0; border-bottom: 1px solid rgba(255,255,255,0.05); 
+                opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .nav-links > li:last-child { border-bottom: none; }
+            .nav-links > li > a { 
+                display: flex; justify-content: space-between; align-items: center;
+                font-size: 1.1rem; padding: 18px 10px; width: 100%; 
+                color: var(--text-main); transition: var(--transition);
+            }
+            .nav-links > li > a:hover { color: var(--star-gold); padding-left: 15px; }
+            .nav-links > li > a::after { display: none; }
+
+            /* Memicu animasi secara bergantian (Cascade) */
+            .nav-links.active > li { opacity: 1; transform: translateY(0); }
+            .nav-links.active > li:nth-child(1) { transition-delay: 0.1s; }
+            .nav-links.active > li:nth-child(2) { transition-delay: 0.15s; }
+            .nav-links.active > li:nth-child(3) { transition-delay: 0.2s; }
+            .nav-links.active > li:nth-child(4) { transition-delay: 0.25s; }
+
+            /* Animasi Dropdown Mobile (Accordion) */
+            /* --- Tampilan Menu Mobile Tanpa Dropdown --- */
+            .dropbtn {
+                display: none; /* Sembunyikan tulisan "Lainnya" */
+            }
+
+            .dropdown-content { 
+                position: static; 
+                display: block; /* Langsung tampilkan semua isi dropdown */
+                visibility: visible; 
+                background: transparent; 
+                border: none; 
+                box-shadow: none; 
+                margin: 0; 
+                padding: 0; 
+                opacity: 1; 
+                transform: none; 
+                border-radius: 0;
+            }
+            .dropdown-content::before { display: none; }
+            
+            /* Samakan gaya dengan link utama di HP */
+            .dropdown-content a { 
+                display: flex; justify-content: space-between; align-items: center;
+                font-size: 1.1rem; padding: 18px 10px; width: 100%; 
+                color: var(--text-main); transition: var(--transition);
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+            .dropdown-content a:hover { color: var(--star-gold); padding-left: 15px; background: transparent; }
+            .dropdown-content a.login-highlight { border-top: none; margin-top: 0; }
+            .nav-links > li.dropdown { border-bottom: none; } /* Hapus garis ganda */
+
+            /* Mencegah Scroll Y / Loncat di Horizontal Container */
+            .horizontal-grid { 
+                display: flex; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden !important;
+                scroll-snap-type: x mandatory; padding: 0 5% 20px; 
+                scroll-behavior: smooth; -webkit-overflow-scrolling: touch; 
+                gap: 15px; justify-content: flex-start; align-items: stretch;
+            } 
+            .horizontal-grid::-webkit-scrollbar { display: none; } /* Menyembunyikan scrollbar horizontal di HP agar clean */
+            .horizontal-grid > * { flex: 0 0 85%; max-width: 320px; scroll-snap-align: center; }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-text-section h1 { font-size: 2.5rem; } .logo-img { height: 32px; } .logo-text { font-size: 1.2rem; }
+            
+            .carousel-inner { height: 400px; } 
+            .carousel-overlay { padding: 30px 15px 30px; } 
+            .carousel-title { font-size: 1.8rem; margin-bottom: 5px; }
+            .carousel-desc { font-size: 0.9rem; margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+            .carousel-indicators { bottom: 15px; gap: 8px;}
+            .indicator { width: 8px; height: 8px; }
+            .indicator.active { width: 20px; }
+            
+            .modal-content { border-radius: 16px; width: 95%; }
+            .modal-img-container { height: 200px; } 
+            .gallery-carousel-container { height: 260px; }
+            .modal-body { padding: 20px; }
+            .modal-title { font-size: 1.5rem; } 
+            .close-modal { width: 30px; height: 30px; font-size: 1.2rem; top: 10px; right: 10px; }
+            .contact-btn { padding: 10px 15px; font-size: 0.95rem; } 
+        }
+        
+        @media (max-width: 480px) {
+            .hero-text-section h1 { font-size: 2rem; }
+            .carousel-inner { height: 350px; }
+            .carousel-title { font-size: 1.5rem; }
+            .carousel-desc { font-size: 0.85rem; -webkit-line-clamp: 2; margin-bottom: 15px;}
+            .carousel-overlay { padding: 20px 15px 25px; }
+            .carousel-indicators { bottom: 10px; }
+            .carousel-btn-link { padding: 8px 20px; font-size: 0.85rem; }
+            .carousel-control { width: 35px; height: 35px; font-size: 1rem; }
+            .carousel-prev { left: 10px; } .carousel-next { right: 10px; }
+
+            .gallery-carousel-container { height: 220px; }
+            .modal-body { padding: 15px; }
+            .modal-title { font-size: 1.3rem; }
+            .modal-desc { font-size: 0.85rem; margin-bottom: 15px; }
+            .contact-btn { font-size: 0.85rem; padding: 10px; }
+            .slide-caption { font-size: 0.8rem; padding: 30px 10px 15px; }
+        }
+
+        /* VISI MISI */
+        .vm-container { display: grid; grid-template-columns: 1fr; gap: 25px; max-width: 1000px; margin: 0 auto; }
+        .vm-card { background: var(--glass-bg); border-radius: 20px; padding: 40px; border: 1px solid var(--glass-border); backdrop-filter: blur(12px); transition: var(--transition); text-align: center; }
+        .vm-card:hover { border-color: var(--cosmic-purple); box-shadow: 0 0 25px rgba(157, 78, 221, 0.2); transform: translateY(-5px); }
+        .vm-title { color: var(--star-gold); font-size: 2rem; margin-bottom: 20px; font-family: 'Quicksand', sans-serif; font-weight: 800; display: inline-flex; align-items: center; gap: 15px; }
+        .vm-card p, .vm-card li { color: var(--text-main); line-height: 1.8; font-size: 1.05rem; }
+        .vm-card ul { padding-left: 20px; text-align: left; display: inline-block; } 
+        .vm-card li { margin-bottom: 15px; }
+
+        /* PROKER */
+        .proker-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .proker-card { background: var(--glass-bg); border-radius: 20px; padding: 35px; border: 1px solid var(--glass-border); backdrop-filter: blur(12px); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; }
+        .proker-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--star-gold); transition: var(--transition); transform: scaleY(0); transform-origin: top; }
+        .proker-card:hover { transform: translateY(-10px); border-color: rgba(244, 140, 6, 0.5); box-shadow: 0 15px 40px rgba(244, 140, 6, 0.15); }
+        .proker-card:hover::before { transform: scaleY(1); }
+        .proker-title { font-size: 1.4rem; color: var(--text-main); font-weight: 700; margin-bottom: 15px; font-family: 'Quicksand', sans-serif; }
+        .proker-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-top: 15px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .badge-unggulan { background: rgba(244, 140, 6, 0.2); color: var(--star-gold); border: 1px solid var(--star-gold); }
+        .badge-rutin { background: rgba(157, 78, 221, 0.2); color: var(--cosmic-pink); border: 1px solid var(--cosmic-purple); }
+        .badge-side { background: rgba(255, 255, 255, 0.1); color: var(--text-main); border: 1px solid rgba(255,255,255,0.3); }
+        .proker-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 15px; text-transform: capitalize; display: inline-block; }
+
+        /* STRUKTUR TREE - DIPERBAIKI LEBIH COMPACT (KIRI & KANAN) */
+         .division-title { font-size: 1.5rem; color: var(--star-gold); margin: 50px 0 25px; padding-bottom: 10px; display: inline-block; font-weight: 600; border-bottom: 1px solid rgba(244, 140, 6, 0.3); text-shadow: 0 0 10px rgba(244, 140, 6, 0.2); }
+        .tree-wrapper { display: flex; flex-direction: column; align-items: center; margin-bottom: 60px; width: 100%; }
+        .tree-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; width: 100%; max-width: 1000px; margin-bottom: 5px; }
+        .tree-connector { width: 2px; height: 30px; background: linear-gradient(to bottom, var(--cosmic-pink), var(--star-gold)); margin: 5px 0; box-shadow: 0 0 10px rgba(199, 125, 255, 0.4); border-radius: 5px; }
+        .team-card { width: 220px; background: var(--glass-bg); border-radius: 20px; padding: 25px 20px; text-align: center; transition: var(--transition); border: 1px solid var(--glass-border); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .team-card:hover { transform: translateY(-8px); box-shadow: 0 10px 30px rgba(157, 78, 221, 0.2); border-color: rgba(199, 125, 255, 0.5); background: rgba(22, 13, 43, 0.9); }
+        .team-avatar { width: 90px; height: 90px; border-radius: 50%; margin-bottom: 15px; border: 2px solid var(--cosmic-purple); object-fit: cover; padding: 3px; background: var(--space-dark); transition: var(--transition); }
+        .team-card:hover .team-avatar { border-color: var(--star-gold); box-shadow: 0 0 15px rgba(244, 140, 6, 0.4); transform: scale(1.1) rotate(5deg); }
+        .team-name { font-weight: 600; font-size: 1.05rem; color: var(--text-main); margin-bottom: 8px; }
+        .team-role { font-size: 0.8rem; color: var(--star-gold); font-weight: 500; background: rgba(244, 140, 6, 0.1); padding: 5px 12px; border-radius: 20px; display: inline-block; border: 1px solid rgba(244, 140, 6, 0.2); }
+
+        /* QUICK SCROLL & PLACEHOLDERS */
+        .quick-scroll-wrapper { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 40px; }
+        .quick-scroll-pill { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 50px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: var(--transition); backdrop-filter: blur(5px); }
+        .quick-scroll-pill:hover { background: rgba(157, 78, 221, 0.2); color: var(--star-gold); border-color: var(--star-gold); transform: translateY(-2px); }
+        .empty-placeholder { grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: var(--glass-bg); border-radius: 20px; border: 1px dashed var(--glass-border); color: var(--text-muted); margin-bottom: 20px; transition: var(--transition); }
+    </style>
+</head>
+<body>
+
+    <!-- CANVAS UNTUK ANIMASI BINTANG -->
+    <canvas id="cosmic-canvas"></canvas>
+
+    <!-- Overlay Latar Belakang Khusus Navbar Mobile -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- NAVBAR PINTAR (SATU-SATUNYA NAVBAR) -->
+    <nav id="main-nav">
+        <a href="#beranda" class="logo-container">
+            <img src="assets/logo-osis.png" alt="Logo OSIS" class="logo-img osis" onerror="this.src='https://ui-avatars.com/api/?name=O+S&background=160D2B&color=F8FAFC'">
+            <img src="assets/logo.png" alt="Aether" class="logo-img" onerror="this.src='https://ui-avatars.com/api/?name=A+E&background=9D4EDD&color=fff'">
+            <span class="logo-text">AETHER<span>.</span></span>
+        </a>
+        <button class="menu-toggle" id="mobile-menu"><i class="fas fa-bars"></i></button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#beranda">Beranda</a></li>
+            <li><a href="#tentang">Tentang Kami</a></li>
+            <li><a href="#proker">Program Kerja</a></li>
+            <li class="dropdown" id="dropdownMenu">
+                <a href="#" class="dropbtn">Lainnya <i class="fas fa-caret-down" style="font-size: 0.8rem; margin-left: 3px;"></i></a>
+                <div class="dropdown-content">
+                    <a href="#galeri"><i class="fas fa-images"></i> Galeri Program</a>
+                    <a href="#video"><i class="fab fa-youtube"></i> Sorotan Video</a>
+                    <a href="#struktur"><i class="fas fa-users"></i> Anggota OSIS</a>
+                    <a href="javascript:void(0)" onclick="openContactModal()"><i class="fas fa-headset"></i> Hubungi Kami</a>
+                    <a href="login.html" class="login-highlight" id="navLoginBtnDrop"><i class="fas fa-lock"></i> Login OSIS</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Carousel di Atas (Main Banner) -->
+    <section class="top-carousel-section" id="beranda">
+        <div class="carousel-container reveal" id="carouselContainer">
+            <div class="carousel-inner" id="carouselInner">
+                <!-- Data will be populated by JS -->
+            </div>
+            <button class="carousel-control carousel-prev" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-control carousel-next" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+            <div class="carousel-indicators" id="carouselIndicators"></div>
+        </div>
+    </section>
+
+    <!-- HERO TEXT -->
+    <section class="hero-text-section reveal">
+        <div class="hero-badge" id="authBadge">✨ Kabinet OSIS SMA Cinta Kasih Tzu Chi</div>
+        <h1>Menyinari Layaknya <span>Bintang Aether.</span></h1>
+        <p>Berdedikasi, berinovasi, dan melangkah bersama mewujudkan lingkungan sekolah yang harmonis dalam balutan semesta kreativitas. Selamat datang di portal resmi Aether!</p>
+    </section>
+
+    <!-- TENTANG KAMI (VISI MISI) -->
+    <div id="tentang" style="position: absolute; margin-top: -100px;"></div>
+    <section class="main-section">
+        <h2 class="section-title reveal">Arah & Tujuan Kami</h2>
+        <p class="section-subtitle reveal">Mengenal lebih dekat visi dan misi yang menjadi kompas pergerakan Kabinet Aether.</p>
+        <div class="vm-container">
+            <div class="vm-card reveal">
+                <div class="vm-title"><i class="fas fa-eye"></i> Visi</div>
+                <p>Menjadikan OSIS SMA Cinta Kasih Tzu Chi sebagai organisasi yang inklusif, kreatif, inovatif, dan komunikatif dengan budaya kolaboratif yang mendorong prestasi, sekaligus menjadi wadah pengembangan diri di bidang akademik maupun non-akademik, serta pembentukan karakter siswa.</p>
+            </div>
+            <div class="vm-card reveal">
+                <div class="vm-title"><i class="fas fa-bullseye"></i> Misi</div>
+                <ul>
+                    <li>Mengembangkan program kerja yang bermanfaat, inovatif dan kreatif sesuai kebutuhan serta minat siswa/i.</li>
+                    <li>Mengoptimalkan komunikasi antara pengurus OSIS, siswa/MPK, dan guru.</li>
+                    <li>Menjadi wadah bagi siswa/i untuk belajar bekerja sama dengan berbagai pihak.</li>
+                    <li>Menciptakan lingkungan yang inklusif, nyaman, dan mendukung setiap siswa/i.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROKER (TETAP SEMUA) -->
+    <div id="proker" style="position: absolute; margin-top: -100px;"></div>
+    <section class="main-section">
+        <h2 class="section-title reveal">Program Bintang</h2>
+        <p class="section-subtitle reveal">Inisiatif dan kegiatan yang kami rancang untuk memajukan potensi seluruh siswa SMA Cinta Kasih Tzu Chi.</p>
+        <div class="proker-grid">
+            <div class="proker-card reveal" onclick="openModal('Lumina', 'Program Unggulan', 'Festival akhir semester yang memadukan olahraga, seni, dan gelar karya untuk menumbuhkan kreativitas, sportivitas, serta kebersamaan antar siswa. Acara ini juga mengundang berbagai penampilan menarik untuk merayakan hasil belajar kita.', 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80', '#')">
+                <div class="proker-badge badge-unggulan">Program Unggulan</div>
+                <h3 class="proker-title">Lumina</h3>
+                <p class="proker-desc">Festival akhir semester yang memadukan olahraga, seni, dan gelar karya untuk menumbuhkan kreativitas, sportivitas, serta kebersamaan.</p>
+            </div>
+            <div class="proker-card reveal" onclick="openModal('Online Voices', 'Program Rutin', 'Menggunakan media sosial untuk menampung aspirasi dan kritik siswa/i agar mereka merasa didengar dan mempererat hubungan dengan OSIS. Ayo sampaikan ide-idemu melalui platform resmi kami!', 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80', 'https://instagram.com/osissmacktc')">
+                <div class="proker-badge badge-rutin">Program Rutin</div>
+                <h3 class="proker-title">Online Voices</h3>
+                <p class="proker-desc">Media penyampai aspirasi secara digital agar suara setiap siswa dapat didengar dan ditindaklanjuti.</p>
+            </div>
+            <div class="proker-card reveal" onclick="openModal('OSIS for a day', 'Side Program', 'Kesempatan emas bagi siswa/i di luar OSIS untuk menjadi panitia event tertentu dengan bimbingan OSIS, agar dapat belajar, menambah pengalaman, dan berkembang bersama secara langsung.', 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80', '#')">
+                <div class="proker-badge badge-side">Side Program</div>
+                <h3 class="proker-title">OSIS for a day</h3>
+                <p class="proker-desc">Kesempatan bagi siswa/i di luar OSIS untuk menjadi panitia event tertentu dengan bimbingan OSIS agar dapat belajar dan berkembang bersama.</p>
+            </div>
+            <div class="proker-card reveal" onclick="openModal('Scavenger hunt', 'Side Program', 'Lomba seru mencari barang tersembunyi dengan berbagai rintangan dan petunjuk teka-teki misterius untuk menumbuhkan kekeluargaan dan kekompakan tiap kelas.', 'assets/proker/luckytrail.jpg', '#')">
+                <div class="proker-badge badge-side">Side Program</div>
+                <h3 class="proker-title">Scavenger hunt</h3>
+                <p class="proker-desc">Lomba mencari barang tersembunyi dengan rintangan dan petunjuk untuk menumbuhkan kekeluargaan dan kekompakan tiap kelas.</p>
+            </div>
+            <div class="proker-card reveal" onclick="openModal('SOS (Showdown Of Students)', 'Side Program', 'Perlombaan akademik sengit antar kelas yang mengumpulkan siswa/i terbaik dari yang terbaik untuk memperebutkan gelar juara umum SMA Cinta Kasih Tzu Chi.', 'https://images.unsplash.com/photo-1546410531-ea4cea477149?auto=format&fit=crop&w=800&q=80', '#')">
+                <div class="proker-badge badge-side">Side Program</div>
+                <h3 class="proker-title">SOS (Showdown Of Students)</h3>
+                <p class="proker-desc">Perlombaan akademik antar kelas yang mengumpulkan siswa/i terbaik dari yang terbaik untuk memperebutkan gelar juara umum.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALERI PROGRAM -->
+    <div id="galeri" style="position: absolute; margin-top: -100px;"></div>
+    <section class="main-section" style="background: rgba(0,0,0,0.3);">
+        <h2 class="section-title reveal">Galeri Aether</h2>
+        <p class="section-subtitle reveal">Momen-momen magis dan tak terlupakan dari berbagai kegiatan yang telah kita lewati bersama.</p>
+        
+        <div class="horizontal-grid" id="galleryContainer">
+            <!-- Spinner sebelum dimuat -->
+            <div class="loader-spinner"></div>
+        </div>
+
+        <div class="see-more-wrapper reveal">
+            <a href="javascript:void(0)" onclick="window.loadGalleries()" class="see-more-btn outline">Muat Ulang <i class="fas fa-sync-alt"></i></a>
+            <a href="gallery/index.html" class="see-more-btn">Lihat Semua Galeri <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <!-- YOUTUBE TERBARU -->
+    <div id="video" style="position: absolute; margin-top: -100px;"></div>
+    <section class="main-section">
+        <h2 class="section-title reveal">Sorotan Layar <i class="fab fa-youtube" style="color: #ff0000; text-shadow: 0 0 15px rgba(255,0,0,0.5);"></i></h2>
+        <p class="section-subtitle reveal">Tonton keseruan berbagai event dan dokumentasi terbaru di channel YouTube resmi OSIS kami.</p>
+        
+        <div class="horizontal-grid" id="videoContainer">
+            <div class="loader-spinner"></div>
+        </div>
+
+        <div class="see-more-wrapper reveal">
+            <a href="javascript:void(0)" onclick="window.loadVideos()" class="see-more-btn outline">Muat Ulang <i class="fas fa-sync-alt"></i></a>
+            <a href="https://www.youtube.com/@osissmacintakasihtzuchi" target="_blank" class="see-more-btn">Lihat Semua Video <i class="fab fa-youtube"></i></a>
+        </div>
+    </section>
+
+    <!-- STRUKTUR (KIRI-KANAN COMPACT) -->
+    <div id="struktur" style="position: absolute; margin-top: -100px;"></div>
+    <section class="main-section">
+        <h2 class="section-title reveal">Formasi Bintang Aether</h2>
+        <p class="section-subtitle reveal">Mengenal susunan kabinet dan wajah-wajah penggerak OSIS SMA Cinta Kasih Tzu Chi.</p>
+
+        <!-- QUICK SCROLL -->
+        <div class="quick-scroll-wrapper reveal">
+            <a href="#div-bph" class="quick-scroll-pill">Badan Pengurus Harian</a>
+            <a href="#div-perancangan" class="quick-scroll-pill">Perancangan</a>
+            <a href="#div-kesenian" class="quick-scroll-pill">Kesenian</a>
+            <a href="#div-humas" class="quick-scroll-pill">Hubungan Masyarakat</a>
+            <a href="#div-kewirausahaan" class="quick-scroll-pill">Kewirausahaan</a>
+        </div>
+
+        <!-- BPH -->
+        <h3 id="div-bph" class="division-title reveal">Badan Pengurus Harian</h3>
+        <div class="tree-wrapper">
+            <!-- Ketua & Wakil Berdampingan -->
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/cintamaya.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Cintamaya+Panna&background=2A1B38&color=F48C06'"><div class="team-name">Cintamaya Panna G.</div><div class="team-role">Ketua OSIS</div></div>
+                <div class="team-card"><img src="assets/pengurus/kisyha.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Kisyha+Ryviera&background=2A1B38&color=F48C06'"><div class="team-name">Kisyha Ryviera</div><div class="team-role">Wakil Ketua OSIS</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <!-- Sekretaris & Bendahara -->
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/metta.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Metta+Suciyanto&background=1A1025&color=C77DFF'"><div class="team-name">Metta Suciyanto</div><div class="team-role">Sekretaris 1</div></div>
+                <div class="team-card"><img src="assets/pengurus/abigail.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Abigail+Adeline&background=1A1025&color=C77DFF'"><div class="team-name">Abigail Adeline A.</div><div class="team-role">Sekretaris 2</div></div>
+                <div class="team-card"><img src="assets/pengurus/sheren.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Sheren+Vhiya&background=1A1025&color=9D4EDD'"><div class="team-name">Sheren Vhiya</div><div class="team-role">Bendahara 1</div></div>
+                <div class="team-card"><img src="assets/pengurus/devin.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Devin+Tjahjaindra&background=1A1025&color=9D4EDD'"><div class="team-name">Devin Tjahjaindra</div><div class="team-role">Bendahara 2</div></div>
+            </div>
+        </div>
+
+        <!-- PERANCANGAN -->
+        <h3 id="div-perancangan" class="division-title reveal">Divisi Perancangan</h3>
+        <div class="tree-wrapper">
+            <!-- Ketua Divisi & Sekretaris Divisi Berdampingan -->
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/collin.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Collin+Mikael&background=160D2B&color=F8FAFC'"><div class="team-name">Collin Mikael S.</div><div class="team-role">Ketua Divisi</div></div>
+                <div class="team-card"><img src="assets/pengurus/jesselyn.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Jesselyn+Khe&background=160D2B&color=F8FAFC'"><div class="team-name">Jesselyn Khe</div><div class="team-role">Sekretaris Divisi</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <!-- Anggota Divisi -->
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/gerick.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Gerick+Julius&background=160D2B&color=F8FAFC'"><div class="team-name">Gerick Julius K.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/angela.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Lim+Angela&background=160D2B&color=F8FAFC'"><div class="team-name">Lim Angela F.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/vanessa.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Vanessa+Ivana&background=160D2B&color=F8FAFC'"><div class="team-name">Vanessa Ivana</div><div class="team-role">Anggota</div></div>
+            </div>
+        </div>
+
+        <!-- KESENIAN -->
+        <h3 id="div-kesenian" class="division-title reveal">Divisi Kesenian</h3>
+        <div class="tree-wrapper">
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/cherrlyn.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Cherrlyn+Vianca&background=160D2B&color=F8FAFC'"><div class="team-name">Cherrlyn Vianca</div><div class="team-role">Ketua Divisi</div></div>
+                <div class="team-card"><img src="assets/pengurus/angelica.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Angelica+Jasmine&background=160D2B&color=F8FAFC'"><div class="team-name">Angelica Jasmine</div><div class="team-role">Sekretaris Divisi</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/felicia.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Felica+Frances&background=160D2B&color=F8FAFC'"><div class="team-name">Felica Frances K.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/maria.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Maria+Giovanna&background=160D2B&color=F8FAFC'"><div class="team-name">Maria Giovanna M.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/nikita.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Nikita+Angelica&background=160D2B&color=F8FAFC'"><div class="team-name">Nikita Angelica</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/sharice.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Sharice+Keenesha&background=160D2B&color=F8FAFC'"><div class="team-name">Sharice Keenesha</div><div class="team-role">Anggota</div></div>
+            </div>
+        </div>
+
+        <!-- HUMAS -->
+        <h3 id="div-humas" class="division-title reveal">Hubungan Masyarakat</h3>
+        <div class="tree-wrapper">
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/aurel.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Aurelia+Putri&background=160D2B&color=F8FAFC'"><div class="team-name">Aurelia Putri L.</div><div class="team-role">Ketua Divisi</div></div>
+                <div class="team-card"><img src="assets/pengurus/sofie.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Sofie+Vanya&background=160D2B&color=F8FAFC'"><div class="team-name">Sofie Vanya Y.</div><div class="team-role">Sekretaris Divisi</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/albert.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Albert+Marshal&background=160D2B&color=F8FAFC'"><div class="team-name">Albert Marshal W.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/carissa.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Carissa+Putri&background=160D2B&color=F8FAFC'"><div class="team-name">Carissa Putri C.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/nyoman.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=I+Nyoman+Gusti&background=160D2B&color=F8FAFC'"><div class="team-name">I Nyoman Gusti R.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/jonathan.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Jonathan+Emmanuel&background=160D2B&color=F8FAFC'"><div class="team-name">Jonathan Emmanuel</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/lady.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Lady+Patricia&background=160D2B&color=F8FAFC'"><div class="team-name">Lady Patricia</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/steven.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Steven+Angjaya&background=160D2B&color=F8FAFC'"><div class="team-name">Steven Angjaya</div><div class="team-role">Anggota</div></div>
+            </div>
+        </div>
+
+        <!-- KEWIRAUSAHAAN -->
+        <h3 id="div-kewirausahaan" class="division-title reveal">Divisi Kewirausahaan</h3>
+        <div class="tree-wrapper">
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/sherina.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Sherina+Verlene&background=160D2B&color=F8FAFC'"><div class="team-name">Sherina Verlene</div><div class="team-role">Ketua Divisi</div></div>
+                <div class="team-card"><img src="assets/pengurus/daniyah.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Daniyah+Rohadatul&background=160D2B&color=F8FAFC'"><div class="team-name">Daniyah Rohadatul</div><div class="team-role">Sekretaris Divisi</div></div>
+            </div>
+            <div class="tree-connector reveal"></div>
+            <div class="tree-row reveal">
+                <div class="team-card"><img src="assets/pengurus/carolina.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Carolina+Saphira&background=160D2B&color=F8FAFC'"><div class="team-name">Carolina Saphira</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/celine.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Celine+Nicoletta&background=160D2B&color=F8FAFC'"><div class="team-name">Celine Nicoletta A.</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/harryson.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Harryson+Layadi&background=160D2B&color=F8FAFC'"><div class="team-name">Harryson Layadi</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/jerimico.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Jeremico+Benedictus&background=160D2B&color=F8FAFC'"><div class="team-name">Jeremico Benedictus</div><div class="team-role">Anggota</div></div>
+                <div class="team-card"><img src="assets/pengurus/marvel.webp" class="team-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Marvel+Satria&background=160D2B&color=F8FAFC'"><div class="team-name">Marvel Satria P.</div><div class="team-role">Anggota</div></div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="reveal">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="logo-container" style="margin-bottom: 15px;">
+                    <img src="assets/logo-osis.png" alt="Logo OSIS" class="logo-img" style="height: 30px; animation: none;" onerror="this.src='https://ui-avatars.com/api/?name=O+S&background=160D2B&color=F8FAFC'">
+                    <img src="assets/logo.png" alt="Aether Logo" class="logo-img" style="height: 30px; animation: none;" onerror="this.src='https://ui-avatars.com/api/?name=A+E&background=9D4EDD&color=fff'">
+                    <span class="logo-text" style="font-size: 1.2rem;">AETHER<span>.</span></span>
+                </div>
+                <p class="footer-text">Berdedikasi, berinovasi, dan melangkah bersama mewujudkan lingkungan sekolah yang harmonis.</p>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Hubungi Kami</h4>
+                <p class="footer-text"><a href="mailto:osis.sma@cintakasihtzuchi.sch.id" style="color:inherit;text-decoration:none;"><i class="fas fa-envelope"></i> osis.sma@cintakasihtzuchi.sch.id</a></p>
+                <p class="footer-text"><a href="https://wa.me/6285817135476" style="color:inherit;text-decoration:none;" target="_blank"><i class="fab fa-whatsapp"></i> +62 858-1713-5476</a></p>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Sosial Media</h4>
+                <div class="footer-socials">
+                    <a href="https://www.instagram.com/osissmacktc/" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@osissmacintakasih" target="_blank" class="social-icon"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.youtube.com/@osissmacintakasihtzuchi" target="_blank" class="social-icon"><i class="fab fa-youtube"></i></a>
+                    <a href="https://lynk.id/osmacktc" target="_blank" class="social-icon" style="font-size: 0.65rem; font-weight: bold;">Lynk.id</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Area Internal</h4>
+                <p class="footer-text">Akses khusus untuk anggota pengurus OSIS.</p>
+                <a href="login.html" class="footer-login-btn" id="navLoginBtn"><i class="fas fa-lock"></i> Login Pengurus</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 OSIS SMA Cinta Kasih Tzu Chi - Aether. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL POPUP W/ IMAGE -->
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <div class="modal-img-container" id="modalImgContainer">
+                <img src="" alt="Modal Image" id="modalImg">
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle">Judul Informasi</h2>
+                <div class="modal-badge" id="modalBadge">Badge</div>
+                <p class="modal-desc" id="modalDesc">Keterangan lengkap muncul di sini...</p>
+                <a href="#" id="modalLinkBtn" class="btn-primary" target="_blank" style="display:none; padding: 10px 25px; font-size: 0.9rem;">
+                    Kunjungi Link <i class="fas fa-external-link-alt" style="margin-left:5px;"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP GALLERY CAROUSEL -->
+    <div id="galleryModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal" id="closeGalleryModal">&times;</span>
+            <div class="gallery-carousel-container">
+                <div class="gallery-carousel-inner" id="galleryCarouselInner">
+                    <!-- Images will be injected here -->
+                </div>
+                <button class="carousel-control carousel-prev" id="galleryPrevBtn"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-control carousel-next" id="galleryNextBtn"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-indicators" id="galleryIndicators"></div>
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="galleryModalTitle">Judul Galeri</h2>
+                <p class="modal-desc" id="galleryModalDesc" style="margin-bottom: 0;">Deskripsi kegiatan...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONTAK KHUSUS -->
+    <div id="contactModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 420px; text-align: center; border: 1px solid var(--star-gold);">
+            <span class="close-modal" onclick="closeContactModal()">&times;</span>
+            <div class="modal-body">
+                <h2 class="modal-title" style="padding-right:0;"><i class="fas fa-satellite-dish" style="color:var(--star-gold);"></i> Hubungi Kami</h2>
+                <p class="modal-desc">Pilih platform di bawah ini untuk langsung terhubung dengan pengurus OSIS Aether.</p>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                    <a href="https://wa.me/6285817135476" target="_blank" class="contact-btn wa">
+                        <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> Hubungi via WhatsApp
+                    </a>
+                    <a href="mailto:osis.sma@cintakasihtzuchi.sch.id" class="contact-btn email">
+                        <i class="fas fa-envelope" style="font-size: 1.2rem;"></i> Kirim Email
+                    </a>
+                    <a href="https://lynk.id/osmacktc" target="_blank" class="contact-btn lynk">
+                        <i class="fas fa-link" style="font-size: 1.2rem;"></i> Kunjungi Lynk.id Kami
+                    </a>
+                    
+                    <p style="margin-top:15px; font-size:0.85rem; color:var(--text-muted);">Ikuti sosial media resmi kami:</p>
+                    <div class="footer-socials" style="justify-content: center;">
+                        <a href="https://instagram.com/osissmacktc" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="https://tiktok.com/@osissmacintakasih" target="_blank" class="social-icon"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://youtube.com/@osissmacintakasihtzuchi" target="_blank" class="social-icon"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // LOGIKA SMART NAVBAR (Scroll Down = Sembunyi, Scroll Up = Muncul)
+        const mainNav = document.getElementById('main-nav');
+        let lastScrollY = window.scrollY;
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+
+            // Tambahkan efek solid background saat digulir ke bawah sedikit
+            if (currentScrollY > 50) {
+                mainNav.classList.add('nav-scrolled');
+            } else {
+                mainNav.classList.remove('nav-scrolled');
+            }
+
+            // Logika sembunyi saat scroll ke bawah, muncul saat scroll ke atas
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Sedang Scroll Ke Bawah - Sembunyikan navbar (cek jika menu HP terbuka, jangan disembunyikan)
+                const mobileMenuOpen = document.getElementById('nav-links').classList.contains('active');
+                if (!mobileMenuOpen) {
+                    mainNav.classList.add('nav-hidden');
+                }
+            } else {
+                // Sedang Scroll Ke Atas - Tampilkan navbar kembali
+                mainNav.classList.remove('nav-hidden');
+            }
+
+            lastScrollY = currentScrollY;
+        });
+
+        const resolveImageUrl = (url) => {
+            if (!url) return '';
+            if (url.startsWith('http') || url.startsWith('data:') || url.startsWith('/') || url.startsWith('assets/')) {
+                return url;
+            }
+            if (url.startsWith('db/')) return url;
+            return 'db/' + url;
+        };
+
+        const observer = new IntersectionObserver((entries) => { 
+            entries.forEach((entry) => { 
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            }); 
+        }, { threshold: 0.1 });
+
+        const renderTimeoutState = (containerId, retryFn) => {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = `
+                    <div class="empty-placeholder reveal active" style="border-color: rgba(244, 140, 6, 0.4);">
+                        <i class="fas fa-satellite-dish" style="font-size: 2.5rem; margin-bottom: 15px; color: var(--star-gold);"></i><br>
+                        <p style="margin-bottom: 15px;">Koneksi terhambat atau waktu memuat terlalu lama.</p>
+                        <button class="btn-primary" onclick="${retryFn}()" style="padding: 8px 20px; font-size: 0.85rem;"><i class="fas fa-sync-alt"></i> Muat Ulang</button>
+                    </div>
+                `;
+            }
+        };
+
+        const canvas = document.getElementById('cosmic-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+        const colors = ['#F8FAFC', '#C77DFF', '#F48C06'];
+
+        function initStars() {
+            width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight;
+            stars = [];
+            const starCount = window.innerWidth < 768 ? 75 : 150; 
+            for (let i = 0; i < starCount; i++) {
+                stars.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 1.5 + 0.5, color: colors[Math.floor(Math.random() * colors.length)], alpha: Math.random(), dAlpha: (Math.random() * 0.03) - 0.015, speed: Math.random() * 0.5 + 0.1 });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, width, height);
+            stars.forEach(star => {
+                star.alpha += star.dAlpha;
+                if (star.alpha >= 1) { star.alpha = 1; star.dAlpha *= -1; }
+                if (star.alpha <= 0.2) { star.alpha = 0.2; star.dAlpha *= -1; }
+                star.y -= star.speed; 
+                if (star.y < 0) { star.y = height; star.x = Math.random() * width; }
+                ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = star.color; ctx.globalAlpha = star.alpha; ctx.shadowBlur = 10; ctx.shadowColor = star.color; ctx.fill();
+            });
+            ctx.globalAlpha = 1; requestAnimationFrame(drawStars);
+        }
+        window.addEventListener('resize', initStars);
+        initStars(); drawStars();
+
+window.openModal = (title, badge, longDesc, imgUrl, link) => {
+    document.getElementById('modalTitle').innerText = title || ''; 
+    document.getElementById('modalBadge').innerText = badge || ''; 
+    document.getElementById('modalDesc').innerText = longDesc || '';
+    
+    const modalImgContainer = document.getElementById('modalImgContainer'); 
+    const modalImg = document.getElementById('modalImg');
+    
+    // Target elemen kotak putih dan background gelapnya
+    const modalUtama = document.querySelector('#infoModal .modal-content'); 
+    const modalOverlay = document.getElementById('infoModal');
+
+    // Bikin jarak dari atap dan sudut melengkung
+    if (modalOverlay) modalOverlay.style.padding = '40px 24px';
+    if (modalUtama) {
+        modalUtama.style.borderRadius = '24px';
+        modalUtama.style.overflow = 'hidden';
+    }
+
+    if (imgUrl && imgUrl !== '') { 
+        const finalUrl = resolveImageUrl(imgUrl);
+        const tempImg = new Image();
+        
+        tempImg.onload = function() {
+            if (modalUtama) {
+                // LOGIKA SIZE MENGIKUTI FOTO
+                if (this.naturalWidth > this.naturalHeight) {
+                    // Foto Horizontal (Melebar) -> Modal dibikin lebar
+                    modalUtama.style.maxWidth = '800px'; 
+                } else {
+                    // Foto Vertikal (Memanjang ke bawah) -> Modal dibikin lebih ramping
+                    modalUtama.style.maxWidth = '450px'; 
+                }
+            }
+            
+            // Supaya foto pas di dalam modal dan bisa di-scroll kalau kepanjangan
+            modalImg.style.width = '100%';
+            modalImg.style.maxHeight = '65vh'; 
+            modalImg.style.objectFit = 'contain';
+            
+            modalImg.src = this.src;
+            modalImgContainer.style.display = 'block'; 
+        };
+
+        // Kalau ada error saat load gambar, tetap paksakan muncul
+        tempImg.onerror = function() {
+            modalImg.src = finalUrl; 
+            modalImgContainer.style.display = 'block'; 
+        };
+        
+        tempImg.src = finalUrl; // Trigger loading gambar
+
+    } else { 
+        modalImgContainer.style.display = 'none'; 
+    }
+    
+    const modalLinkBtn = document.getElementById('modalLinkBtn');
+    if (link && link !== '#' && link !== '') { 
+        modalLinkBtn.style.display = 'inline-block'; 
+        modalLinkBtn.href = link; 
+    } else { 
+        modalLinkBtn.style.display = 'none'; 
+    }
+    
+    document.getElementById('infoModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+        window.closeModal = () => { 
+            document.getElementById('infoModal').classList.remove('active'); 
+            document.body.style.overflow = '';
+        };
+        
+        window.openContactModal = () => { 
+            document.getElementById('contactModal').classList.add('active'); 
+            const navLinks = document.getElementById('nav-links');
+            if(navLinks.classList.contains('active')){ 
+                navLinks.classList.remove('active'); 
+                document.getElementById('mobile-menu').innerHTML = '<i class="fas fa-bars"></i>'; 
+                document.getElementById('mobileOverlay').classList.remove('active');
+            } 
+            document.body.style.overflow = 'hidden';
+        };
+        window.closeContactModal = () => { 
+            document.getElementById('contactModal').classList.remove('active'); 
+            document.body.style.overflow = '';
+        };
+        
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        document.getElementById('infoModal').addEventListener('click', (e) => { if(e.target.id === 'infoModal') closeModal(); });
+        document.getElementById('contactModal').addEventListener('click', (e) => { if(e.target.id === 'contactModal') closeContactModal(); });
+
+        let galleryCurrentSlide = 0; let galleryTotalSlides = 0; window.currentGalleryData = [];
+
+        window.loadGalleries = async () => {
+            const container = document.getElementById('galleryContainer');
+            container.innerHTML = '<div class="loader-spinner"></div>';
+            
+            let isLoaded = false;
+            const timeoutId = setTimeout(() => {
+                if (!isLoaded) renderTimeoutState('galleryContainer', 'window.loadGalleries');
+            }, 10000); 
+
+            try {
+                let galleryData = [];
+                const snap = await getDocs(collection(db, "galleries"));
+                snap.forEach(doc => galleryData.push(doc.data()));
+                isLoaded = true; clearTimeout(timeoutId);
+
+                galleryData.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                const latestGalleries = galleryData.slice(0, 3);
+                window.currentGalleryData = latestGalleries;
+                
+                container.innerHTML = '';
+                if (latestGalleries.length === 0) {
+                    container.innerHTML = '<div class="empty-placeholder reveal active"><i class="fas fa-images" style="font-size: 2.5rem; margin-bottom: 15px; color: var(--star-gold);"></i><br>Belum ada galeri kegiatan yang dipublikasikan saat ini.</div>';
+                    return;
+                }
+
+                latestGalleries.forEach((gal, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item reveal';
+                    item.style.transitionDelay = `${index * 0.1}s`;
+                    item.onclick = () => openGalleryModal(index);
+                    
+                    const imagesList = gal.images || [];
+                    const safeTitle = gal.title || 'Galeri Tanpa Judul';
+                    const previewImages = imagesList.slice(0, 4);
+
+                    let sliderHtml = '<div class="gallery-slider" id="slider-' + index + '">';
+                    if (previewImages.length === 0) {
+                        sliderHtml += `<img src="https://placehold.co/600x400/160D2B/F48C06?text=Memuat+Foto" alt="${safeTitle}" loading="lazy">`;
+                    } else {
+                        previewImages.forEach((imgObj, i) => {
+                            const imgUrl = resolveImageUrl(imgObj.url);
+                            sliderHtml += `<img src="${imgUrl}" alt="${safeTitle} - Foto ${i+1}" loading="lazy">`;
+                        });
+                    }
+                    sliderHtml += '</div>';
+
+                    item.innerHTML = `
+                        ${sliderHtml}
+                        <div class="gallery-overlay">
+                            <h3>${safeTitle}</h3>
+                            <p>${gal.shortDesc || ''}</p>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                    observer.observe(item);
+                });
+            } catch (error) { 
+                console.warn("Gallery load error", error);
+                if (!isLoaded) renderTimeoutState('galleryContainer', 'window.loadGalleries');
+            }
+        };
+
+        window.loadVideos = async () => {
+            const container = document.getElementById('videoContainer');
+            container.innerHTML = '<div class="loader-spinner"></div>';
+            
+            let isLoaded = false;
+            const timeoutId = setTimeout(() => {
+                if (!isLoaded) renderTimeoutState('videoContainer', 'window.loadVideos');
+            }, 10000);
+
+            try {
+                let videoData = [];
+                const snap = await getDocs(collection(db, "videos"));
+                snap.forEach(doc => videoData.push(doc.data()));
+                isLoaded = true; clearTimeout(timeoutId);
+
+                videoData.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                const latestVideos = videoData.slice(0, 3); 
+
+                container.innerHTML = '';
+                if (latestVideos.length === 0) {
+                    container.innerHTML = '<div class="empty-placeholder reveal active"><i class="fab fa-youtube" style="font-size: 2.5rem; margin-bottom: 15px; color: #ff0000;"></i><br>Belum ada sorotan video saat ini.</div>';
+                    return;
+                }
+
+                latestVideos.forEach((vid, index) => {
+                    if (!vid.ytId) return; 
+                    const item = document.createElement('div');
+                    item.className = 'video-card reveal'; 
+                    item.style.transitionDelay = `${index * 0.1}s`;
+                    item.innerHTML = `
+                        <div class="video-wrapper">
+                            <iframe src="https://www.youtube.com/embed/${vid.ytId}?rel=0" title="${vid.title || 'Video OSIS'}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                    observer.observe(item); 
+                });
+            } catch(e) {
+                if(!isLoaded) renderTimeoutState('videoContainer', 'window.loadVideos');
+            }
+        };
+
+        window.openGalleryModal = (index) => {
+            const gal = window.currentGalleryData[index];
+            document.getElementById('galleryModalTitle').innerText = gal.title || '';
+            document.getElementById('galleryModalDesc').innerText = gal.longDesc || gal.shortDesc || '';
+            
+            const inner = document.getElementById('galleryCarouselInner');
+            const indicators = document.getElementById('galleryIndicators');
+            inner.innerHTML = ''; indicators.innerHTML = '';
+            
+            const imagesList = gal.images || [];
+            galleryTotalSlides = imagesList.length;
+            galleryCurrentSlide = 0;
+
+            if (imagesList.length === 0) {
+                inner.innerHTML = `<div class="gallery-slide"><img src="https://placehold.co/800x600/160D2B/F48C06?text=Memuat+Foto" loading="lazy"></div>`;
+            } else {
+                imagesList.forEach((imgObj, i) => {
+                    const slide = document.createElement('div'); slide.className = 'gallery-slide';
+                    const captionHtml = imgObj.caption ? `<div class="slide-caption">${imgObj.caption}</div>` : '';
+                    slide.innerHTML = `<img src="${resolveImageUrl(imgObj.url)}" alt="${gal.title || 'Galeri'} ${i + 1}" loading="lazy">${captionHtml}`;
+                    inner.appendChild(slide);
+
+                    const dot = document.createElement('div'); dot.className = `indicator ${i === 0 ? 'active' : ''}`;
+                    dot.addEventListener('click', () => { galleryCurrentSlide = i; updateGallerySlider(); });
+                    indicators.appendChild(dot);
+                });
+            }
+            updateGallerySlider(); 
+            document.getElementById('galleryModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+        window.closeGalleryModal = () => { 
+            document.getElementById('galleryModal').classList.remove('active'); 
+            document.body.style.overflow = '';
+        };
+        document.getElementById('closeGalleryModal').addEventListener('click', closeGalleryModal);
+        document.getElementById('galleryModal').addEventListener('click', (e) => { if(e.target.id === 'galleryModal') closeGalleryModal(); });
+
+        const updateGallerySlider = () => {
+            document.getElementById('galleryCarouselInner').style.transform = `translateX(-${galleryCurrentSlide * 100}%)`;
+            const dots = document.getElementById('galleryIndicators').children;
+            for(let i=0; i<dots.length; i++) { dots[i].classList.toggle('active', i === galleryCurrentSlide); }
+        };
+        document.getElementById('galleryPrevBtn').addEventListener('click', () => { galleryCurrentSlide = (galleryCurrentSlide > 0) ? galleryCurrentSlide - 1 : (galleryTotalSlides > 0 ? galleryTotalSlides - 1 : 0); updateGallerySlider(); });
+        document.getElementById('galleryNextBtn').addEventListener('click', () => { galleryCurrentSlide = (galleryCurrentSlide < galleryTotalSlides - 1) ? galleryCurrentSlide + 1 : 0; updateGallerySlider(); });
+
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        // LOGIKA MOBILE MENU YANG DIPERBAIKI (DENGAN ANIMASI)
+        const menuToggle = document.getElementById('mobile-menu'); 
+        const navLinks = document.getElementById('nav-links'); 
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        function toggleMobileMenu() {
+            const isActive = navLinks.classList.contains('active');
+            
+            if (!isActive) {
+                navLinks.classList.add('active'); 
+                mobileOverlay.classList.add('active');
+                
+                // Beri jeda rotasi untuk efek animasi fontawesome yang halus
+                menuToggle.style.transform = 'rotate(90deg) scale(0.8)';
+                setTimeout(() => {
+                    menuToggle.innerHTML = '<i class="fas fa-times"></i>';
+                    menuToggle.style.transform = 'rotate(0deg) scale(1)';
+                }, 150);
+                
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                navLinks.classList.remove('active'); 
+                mobileOverlay.classList.remove('active');
+                
+                menuToggle.style.transform = 'rotate(-90deg) scale(0.8)';
+                setTimeout(() => {
+                    menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                    menuToggle.style.transform = 'rotate(0deg) scale(1)';
+                }, 150);
+                
+                document.body.style.overflow = '';
+                dropdownMenu.classList.remove('active');
+            }
+        }
+
+        menuToggle.addEventListener('click', toggleMobileMenu);
+        mobileOverlay.addEventListener('click', toggleMobileMenu);
+
+        // LOGIKA DROPDOWN MOBILE
+        if(window.innerWidth <= 900) { 
+            const dropbtn = document.querySelector('.dropbtn');
+            dropbtn.addEventListener('click', (e) => { 
+                e.preventDefault(); // Hindari lompat ke atas halaman
+                dropdownMenu.classList.toggle('active'); 
+            }); 
+        }
+        
+        document.querySelectorAll('.nav-links > li > a:not(.dropbtn), .dropdown-content a').forEach(link => { 
+            link.addEventListener('click', () => { 
+                if(window.innerWidth <= 900) { toggleMobileMenu(); } 
+            }); 
+        });
+
+        const firebaseConfig = { apiKey: "AIzaSyDjyKJQbGcim9esLh_bAZnxpM4jtPI5sUU", authDomain: "osmaaether.firebaseapp.com", projectId: "osmaaether", storageBucket: "osmaaether.firebasestorage.app", messagingSenderId: "943721519971", appId: "1:943721519971:web:5f44039952b9541d9a5156" };
+        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+        const navLoginBtnDrop = document.getElementById('navLoginBtnDrop'); const navLoginBtn = document.getElementById('navLoginBtn'); const authBadge = document.getElementById('authBadge');
+
+        async function loadBanners() {
+            const carouselInner = document.getElementById('carouselInner'); const carouselIndicators = document.getElementById('carouselIndicators');
+            let banners = [];
+            try {
+                const querySnapshot = await getDocs(collection(db, "banners"));
+                querySnapshot.forEach((doc) => { banners.push(doc.data()); });
+            } catch (error) { console.warn("Belum ada Firebase."); }
+
+            if (banners.length === 0) {
+                banners = [
+                    { title: "Selamat Datang di Portal Aether", badge: "Informasi", desc: "Temukan berbagai informasi, artikel, dan kegiatan seru dari OSIS SMA CKTC di sini.", longDesc: "Aether adalah kabinet OSIS SMA Cinta Kasih Tzu Chi periode ini.", img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80", link: "#" },
+                    { title: "Lumina 2026 Segera Hadir!", badge: "Event Mendatang", desc: "Persiapkan dirimu untuk festival akhir semester yang memadukan olahraga dan seni.", longDesc: "Lumina menggabungkan kompetisi olahraga dengan pameran seni.", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80", link: "#" }
+                ];
+            }
+
+            banners.forEach((banner, index) => {
+                const slide = document.createElement('div'); slide.className = 'carousel-slide';
+                const safeBadge = banner.badge || 'Pengumuman'; const safeLink = banner.link || '#'; 
+                const safeLongDesc = banner.longDesc || banner.desc || ''; 
+                const safeTitle = (banner.title || '').replace(/'/g, "\\'");
+                const imgUrl = banner.img ? resolveImageUrl(banner.img) : 'https://placehold.co/1200x500/090514/F48C06?text=Memuat+Banner';
+                const lazyAttr = index === 0 ? '' : 'loading="lazy"';
+                
+                slide.innerHTML = `<img src="${imgUrl}" alt="${safeTitle}" ${lazyAttr}> <div class="carousel-overlay"> <div class="carousel-title">${banner.title || ''}</div> <div class="carousel-desc">${banner.desc || ''}</div> <button class="carousel-btn-link" onclick="openModal('${safeTitle}', '${safeBadge}', '${safeLongDesc.replace(/'/g, "\\'")}', '${banner.img || ''}', '${safeLink}')">Baca Selengkapnya</button> </div>`;
+                carouselInner.appendChild(slide);
+
+                const dot = document.createElement('div'); dot.className = `indicator ${index === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToSlide(index)); carouselIndicators.appendChild(dot);
+            });
+
+            let currentSlide = 0; const totalSlides = banners.length;
+            const prevBtn = document.getElementById('prevBtn'); const nextBtn = document.getElementById('nextBtn');
+            const carouselContainer = document.getElementById('carouselContainer');
+
+            function updateSlider() {
+                carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
+                document.querySelectorAll('.indicator').forEach((dot, index) => { dot.classList.toggle('active', index === currentSlide); });
+            }
+            function goToSlide(index) { currentSlide = index; updateSlider(); }
+
+            prevBtn.addEventListener('click', () => { currentSlide = (currentSlide > 0) ? currentSlide - 1 : totalSlides - 1; updateSlider(); });
+            nextBtn.addEventListener('click', () => { currentSlide = (currentSlide < totalSlides - 1) ? currentSlide + 1 : 0; updateSlider(); });
+
+            let slideInterval;
+            const startAutoSlide = () => { slideInterval = setInterval(() => { currentSlide = (currentSlide < totalSlides - 1) ? currentSlide + 1 : 0; updateSlider(); }, 4000); };
+            const stopAutoSlide = () => { clearInterval(slideInterval); };
+
+            startAutoSlide(); 
+            carouselContainer.addEventListener('mouseenter', stopAutoSlide); carouselContainer.addEventListener('mouseleave', startAutoSlide);
+            carouselContainer.addEventListener('touchstart', stopAutoSlide, {passive: true}); carouselContainer.addEventListener('touchend', startAutoSlide, {passive: true});
+        }
+        
+        loadBanners(); 
+        window.loadGalleries();
+        window.loadVideos();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                navLoginBtnDrop.innerHTML = `<i class="fas fa-rocket"></i> Dashboard (Aktif)`; navLoginBtnDrop.href = "login.html"; navLoginBtnDrop.style.color = "var(--star-gold)";
+                if (navLoginBtn) { navLoginBtn.innerHTML = `<i class="fas fa-rocket"></i> Buka Dashboard`; navLoginBtn.href = "login.html"; navLoginBtn.style.color = "var(--star-gold)"; navLoginBtn.style.borderColor = "var(--star-gold)"; }
+                authBadge.innerText = `🌌 Akses Pengurus: Aktif`; authBadge.style.background = "rgba(244, 140, 6, 0.15)"; authBadge.style.color = "var(--star-gold)"; authBadge.style.borderColor = "rgba(244, 140, 6, 0.4)"; authBadge.style.boxShadow = "0 0 15px rgba(244, 140, 6, 0.2)";
+            } else {
+                navLoginBtnDrop.innerHTML = `<i class="fas fa-lock"></i> Login OSIS`; navLoginBtnDrop.href = "login.html";
+                if (navLoginBtn) { navLoginBtn.innerHTML = `<i class="fas fa-lock"></i> Login Pengurus`; navLoginBtn.href = "login.html"; }
+                authBadge.innerText = "✨ Kabinet OSIS SMA Cinta Kasih Tzu Chi";
+            }
+        });
+    </script>
+</body>
+</html>

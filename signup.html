@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Pengurus | Aether OSIS</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --space-dark: #000000; --space-light: #160D2B;
+            --cosmic-purple: #9D4EDD; --cosmic-pink: #C77DFF;
+            --star-gold: #F48C06; --text-main: #F8FAFC;
+            --text-muted: #94A3B8; --glass-bg: rgba(22, 13, 43, 0.7);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--space-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(244, 140, 6, 0.1) 0%, transparent 40%);
+            padding: 20px;
+        }
+
+        .signup-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Dekorasi Glow */
+        .signup-container::before {
+            content: '';
+            position: absolute; top: -50px; left: -50px;
+            width: 150px; height: 150px;
+            background: rgba(157, 78, 221, 0.4);
+            filter: blur(60px); z-index: -1;
+        }
+
+        .logo { font-family: 'Quicksand', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
+        .logo span { color: var(--star-gold); }
+        
+        .subtitle { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px; line-height: 1.5; }
+
+        .invite-info {
+            background: rgba(244, 140, 6, 0.1);
+            border: 1px dashed var(--star-gold);
+            padding: 15px; border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .invite-info p { margin: 5px 0; font-size: 0.9rem; }
+        .invite-info strong { color: var(--star-gold); font-family: 'Quicksand', sans-serif; }
+
+        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem; }
+        .form-control {
+            width: 100%; padding: 14px 15px 14px 45px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; color: var(--text-main);
+            font-family: 'Poppins', sans-serif; font-size: 1rem;
+            transition: var(--transition);
+        }
+        .form-control:focus { border-color: var(--cosmic-purple); background: rgba(157, 78, 221, 0.05); outline: none; box-shadow: 0 0 15px rgba(157, 78, 221, 0.2); }
+
+        .btn-submit {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, var(--cosmic-purple), #7B2CBF);
+            color: white; border: none; border-radius: 12px;
+            font-family: 'Poppins', sans-serif; font-size: 1.05rem; font-weight: 600;
+            cursor: pointer; transition: var(--transition);
+            margin-top: 10px;
+        }
+        .btn-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(157, 78, 221, 0.4); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .error-msg { color: #fca5a5; background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.9rem; margin-bottom: 20px; display: none; }
+        
+        #loadingState { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; }
+        .spinner { font-size: 2.5rem; color: var(--star-gold); animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="signup-container">
+        <div class="logo">AETHER<span>.</span></div>
+        <div class="subtitle" id="mainSubtitle">Pendaftaran Akun Pengurus Baru</div>
+
+        <div id="loadingState">
+            <i class="fas fa-circle-notch spinner"></i>
+            <p>Memeriksa validitas link undangan...</p>
+        </div>
+
+        <div id="errorState" class="error-msg">
+            <i class="fas fa-exclamation-triangle"></i> <span id="errorText">Link tidak valid atau sudah digunakan.</span>
+        </div>
+
+        <div id="formState" style="display: none;">
+            <div class="invite-info" id="inviteBox">
+                <p>Halo, <strong><span id="displayTargetName">Pengurus</span></strong>!</p>
+                <p>Anda diundang untuk mendaftar dengan jabatan: <br><strong><span id="displayTitle"></span></strong></p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;"><i class="fas fa-info-circle"></i> Link ini hanya bisa digunakan 1 kali. Silakan buat akun Anda.</p>
+            </div>
+
+            <form id="signupForm">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="inputEmail" class="form-control" placeholder="Email aktif Anda" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="inputPass" class="form-control" placeholder="Buat kata sandi (Min. 6 karakter)" required>
+                </div>
+                
+                <button type="submit" class="btn-submit" id="btnSubmit">Daftar Sekarang <i class="fas fa-arrow-right" style="margin-left: 5px;"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIREBASE MODULES -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjyKJQbGcim9esLh_bAZnxpM4jtPI5sUU",
+            authDomain: "osmaaether.firebaseapp.com",
+            projectId: "osmaaether",
+            storageBucket: "osmaaether.firebasestorage.app",
+            messagingSenderId: "943721519971",
+            appId: "1:943721519971:web:5f44039952b9541d9a5156"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // UI Elements
+        const loadingState = document.getElementById('loadingState');
+        const formState = document.getElementById('formState');
+        const errorState = document.getElementById('errorState');
+        const errorText = document.getElementById('errorText');
+        
+        const displayTargetName = document.getElementById('displayTargetName');
+        const displayTitle = document.getElementById('displayTitle');
+        const signupForm = document.getElementById('signupForm');
+        const btnSubmit = document.getElementById('btnSubmit');
+
+        let inviteData = null;
+        let tokenParams = null;
+
+        // 1. Cek Token di URL
+        window.onload = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            tokenParams = urlParams.get('token');
+
+            if (!tokenParams) {
+                showError("Akses ditolak. Tidak ada token undangan.");
+                return;
+            }
+
+            try {
+                // Cari data token di Firestore
+                const inviteRef = doc(db, "invites", tokenParams);
+                const inviteSnap = await getDoc(inviteRef);
+
+                if (inviteSnap.exists()) {
+                    inviteData = inviteSnap.data();
+                    
+                    // Tampilkan Data Undangan di UI
+                    displayTargetName.innerText = inviteData.targetName || "Pengurus";
+                    displayTitle.innerText = inviteData.title || "Pengurus OSIS";
+                    
+                    loadingState.style.display = 'none';
+                    formState.style.display = 'block';
+                } else {
+                    showError("Link undangan tidak valid atau sudah kadaluarsa/digunakan.");
+                }
+            } catch (err) {
+                showError("Terjadi kesalahan jaringan saat memeriksa link.");
+                console.error(err);
+            }
+        };
+
+        // 2. Proses Pendaftaran
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('inputEmail').value.trim().toLowerCase();
+            const password = document.getElementById('inputPass').value;
+
+            if (password.length < 6) {
+                alert("Kata sandi harus minimal 6 karakter.");
+                return;
+            }
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<i class="fas fa-circle-notch spinner" style="font-size: 1rem; animation: spin 1s linear infinite;"></i> Memproses...`;
+
+            try {
+                // A. Buat Akun Auth Firebase
+                await createUserWithEmailAndPassword(auth, email, password);
+
+                // B. Masukkan Hak Akses ke Firestore Settings
+                const permRef = doc(db, "settings", "permissions");
+                let updates = {};
+                const safeKey = email.replace(/\./g, '_');
+
+                // Terapkan Modul (Jika ada)
+                if (inviteData.modules && inviteData.modules.length > 0) {
+                    inviteData.modules.forEach(modId => {
+                        updates[modId] = arrayUnion(email);
+                    });
+                }
+
+                // Terapkan Super Admin (Jika diset)
+                if (inviteData.isSuperAdmin) {
+                    updates["superadmins"] = arrayUnion(email);
+                }
+
+                // Terapkan Gelar/Jabatan
+                if (inviteData.title) {
+                    updates[`titles.${safeKey}`] = inviteData.title;
+                }
+
+                await updateDoc(permRef, updates);
+
+                // C. Hapus Token agar tidak bisa dipakai 2 kali (One-time use)
+                await deleteDoc(doc(db, "invites", tokenParams));
+
+                alert("Pendaftaran Berhasil! Anda akan dialihkan ke Dashboard.");
+                window.location.href = "db/index.html"; // Sesuaikan path jika signup.html ada di luar folder db
+
+            } catch (error) {
+                console.error(error);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `Daftar Sekarang <i class="fas fa-arrow-right" style="margin-left: 5px;"></i>`;
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    alert("Email ini sudah terdaftar sebelumnya!");
+                } else {
+                    alert("Gagal mendaftar: " + error.message);
+                }
+            }
+        });
+
+        function showError(msg) {
+            loadingState.style.display = 'none';
+            formState.style.display = 'none';
+            errorState.style.display = 'block';
+            errorText.innerText = msg;
+        }
+    </script>
+</body>
+</html>

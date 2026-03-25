@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Pengurus | Aether OSIS</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- COSMIC COLOR PALETTE (Sesuai dengan index.html) --- */
+        :root {
+            --space-dark: #090514;
+            --space-light: #160D2B;
+            --cosmic-purple: #9D4EDD;
+            --cosmic-pink: #C77DFF;
+            --star-gold: #F48C06;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --glass-bg: rgba(22, 13, 43, 0.6);
+            --glass-border: rgba(157, 78, 221, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--space-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            /* Efek Nebula / Cosmic Dust Background */
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(157, 78, 221, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(244, 140, 6, 0.15) 0%, transparent 50%);
+        }
+
+        /* Animasi Bintang Jatuh / Debu Kosmik (Opsional untuk estetika) */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: transparent url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjUiLz48Y2lyY2xlIGN4PSIyMDAiIGN5PSI4MCIgcj0iMS41IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjgiLz48Y2lyY2xlIGN4PSIzNTAiIGN5PSIyNTAiIHI9IjEiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuNCIvPjwvc3ZnPg==') repeat;
+            animation: moveStars 100s linear infinite;
+        }
+
+        @keyframes moveStars {
+            from { background-position: 0 0; }
+            to { background-position: -1000px 1000px; }
+        }
+
+        /* --- LOGIN CARD --- */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .login-card {
+            background: var(--glass-bg);
+            border-radius: 24px;
+            padding: 40px 30px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(157, 78, 221, 0.1);
+            text-align: center;
+        }
+
+        .logo-text {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .logo-text span {
+            color: var(--star-gold);
+            text-shadow: 0 0 15px rgba(244, 140, 6, 0.6);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 35px;
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--cosmic-pink);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+        }
+
+        .form-control:focus {
+            border-color: var(--cosmic-purple);
+            background: rgba(157, 78, 221, 0.05);
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--star-gold), #DC2F02);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 15px rgba(244, 140, 6, 0.3);
+            transition: var(--transition);
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 140, 6, 0.6);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit.loading {
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .btn-submit.loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            min-height: 20px;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--cosmic-pink);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-text">AETHER<span>.</span></div>
+            <p class="subtitle">Portal Akses Pengurus OSIS</p>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Pengurus</label>
+                    <input type="email" id="email" class="form-control" placeholder="nama@aether.osis" required autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Kata Sandi</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">Masuk</button>
+            </form>
+
+            <div id="errorMsg" class="error-message"></div>
+
+            <a href="index.html" class="back-link">← Kembali ke Orbit (Beranda)</a>
+        </div>
+    </div>
+
+    <!-- LOGIKA FIREBASE AUTHENTICATION -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+        // Firebase Config (Sesuai dengan index.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjyKJQbGcim9esLh_bAZnxpM4jtPI5sUU",
+            authDomain: "osmaaether.firebaseapp.com",
+            projectId: "osmaaether",
+            storageBucket: "osmaaether.firebasestorage.app",
+            messagingSenderId: "943721519971",
+            appId: "1:943721519971:web:5f44039952b9541d9a5156"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMsg = document.getElementById('errorMsg');
+
+        // Cek jika user sudah login, langsung arahkan ke dashboard
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = "db/index.html";
+            }
+        });
+
+        // Handle proses login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Tampilan loading pada tombol
+            submitBtn.classList.add('loading');
+            errorMsg.innerText = ""; // Bersihkan pesan error sebelumnya
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Sukses login (onAuthStateChanged akan menangani redirect)
+                    submitBtn.innerText = "Berhasil Masuk!";
+                    submitBtn.classList.remove('loading');
+                })
+                .catch((error) => {
+                    // Tangani error
+                    submitBtn.classList.remove('loading');
+                    const errorCode = error.code;
+                    
+                    if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
+                        errorMsg.innerText = "Email atau kata sandi salah. Coba lagi.";
+                    } else if (errorCode === 'auth/too-many-requests') {
+                        errorMsg.innerText = "Terlalu banyak percobaan. Silakan coba beberapa saat lagi.";
+                    } else if (errorCode === 'auth/invalid-email') {
+                        errorMsg.innerText = "Format email tidak valid.";
+                    } else {
+                        errorMsg.innerText = "Terjadi kesalahan: " + error.message;
+                    }
+                });
+        });
+    </script>
+</body>
+</html>
